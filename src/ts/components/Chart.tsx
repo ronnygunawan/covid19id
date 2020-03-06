@@ -2,17 +2,20 @@ import * as React from "react";
 import { ResponsiveLine, Serie } from "@nivo/line";
 import { CartesianMarkerProps } from "@nivo/core"
 import { KeyEvent } from "../models/KeyEvent";
+import { SuspectDeath } from "../models/SuspectDeath";
 
 interface Props {
     data: Serie[];
     keyEvents: KeyEvent[] | null;
+    suspectDeaths: SuspectDeath[] | null;
 }
 
 export const Chart = ({
     data,
-    keyEvents
+    keyEvents,
+    suspectDeaths
 }: Props) => {
-    const markers: CartesianMarkerProps[] | undefined = keyEvents !== null
+    const markers: CartesianMarkerProps[] = keyEvents !== null
         ? keyEvents.map((keyEvent): CartesianMarkerProps => ({
             axis: "x",
             value: keyEvent.date,
@@ -21,7 +24,19 @@ export const Chart = ({
                 fontSize: 12
             }
         }))
-        : undefined;
+        : [];
+    if (suspectDeaths !== null) {
+        console.log(suspectDeaths);
+        for (const suspectDeath of suspectDeaths) {
+            markers.push({
+                axis: "x",
+                value: data[0].data.find(d => d.x === suspectDeath.date) ? suspectDeath.date : "TODAY",
+                lineStyle: {
+                    stroke: "rgba(255, 0, 0, 0.5)"
+                }
+            })
+        }
+    }
 
     return <div id="chart">
         <ResponsiveLine
