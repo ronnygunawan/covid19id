@@ -3,3 +3,4 @@ Id,Date,District,Hospital,Age,COVID-19 Status,Official Cause of Death,News Url
 2,2/23/20,Semarang,RSUP dr Kariadi Semarang,37,Negative,H1N1pdm09 Infection,https://nasional.kompas.com/read/2020/02/27/14420131/menkes-pasien-yang-meninggal-di-rs-kariadi-semarang-karena-virus-h1n1-bukan
 3,3/3/20,Cianjur,RSDH Cianjur,50,Negative,Complication,https://news.detik.com/berita-jawa-barat/d-4925058/pegawai-telkom-negatif-corona-yang-meninggal-di-cianjur-ternyata-komplikasi
 4,3/4/20,Malang,RSSA Malang,,Negative,Respiratory Infection,https://tagar.id/rssa-malang-batah-pasien-meninggal-karena-corona
+5,3/6/20,Jakarta Utara,RSPI Sulianti Saroso,65,Negative,Complication,https://news.detik.com/berita/d-4928259/seorang-pasien-suspect-corona-meninggal-dunia-di-rspi-sulianti-saroso
