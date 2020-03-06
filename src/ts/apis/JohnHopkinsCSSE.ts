@@ -128,32 +128,38 @@ export async function loadStatistics(): Promise<void> {
     allStatistics = await getAllStatistics();
 }
 
-export async function getCountries(): Promise<string[]> {
+export async function getCountries(): Promise<[string, number][]> {
     if (allStatistics === null) {
         allStatistics = await getAllStatistics();
     }
-    const countries = Object.keys(allStatistics.reduce<{
-        [country: string]: 1
+    const confirmedByCountry = allStatistics.reduce<{
+        [country: string]: number
     }>((prev, cur) => {
-        prev[cur.Country_Region] = 1;
+        if (prev[cur.Country_Region]) {
+            prev[cur.Country_Region] += cur.TimeSeries[cur.TimeSeries.length - 1].Confirmed;
+        } else {
+            prev[cur.Country_Region] = cur.TimeSeries[cur.TimeSeries.length - 1].Confirmed;
+        }
         return prev;
-    }, {}));
+    }, {});
+    const countries = Object.keys(confirmedByCountry);
     countries.sort((a, b) => a.localeCompare(b));
-    return countries;
+    return countries.map(country => [country, confirmedByCountry[country]]);
 }
 
-export async function getProvinces(country: string): Promise<string[]> {
+export async function getProvinces(country: string): Promise<[string, number][]> {
     if (allStatistics === null) {
         allStatistics = await getAllStatistics();
     }
-    const provinces = Object.keys(allStatistics.filter(stat => stat.Country_Region === country && stat.Province_State).reduce<{
-        [province: string]: 1
+    const confirmedByProvince = allStatistics.filter(stat => stat.Country_Region === country && stat.Province_State).reduce<{
+        [province: string]: number
     }>((prev, cur) => {
-        prev[cur.Province_State!] = 1;
+        prev[cur.Province_State!] = cur.TimeSeries[cur.TimeSeries.length - 1].Confirmed;
         return prev;
-    }, {}));
+    }, {})
+    const provinces = Object.keys(confirmedByProvince);
     provinces.sort((a, b) => a.localeCompare(b));
-    return provinces;
+    return provinces.map(province => [province, confirmedByProvince[province]]);
 }
 
 export async function getStatistics(province_state: string | null, country_region: string): Promise<CombinedStatistics | null> {

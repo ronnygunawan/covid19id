@@ -13,8 +13,8 @@ export const LocationSelector = ({
 }: Props) => {
     const [country, setCountry] = React.useState<string>("Indonesia");
     const [province, setProvince] = React.useState<string | null>(null);
-    const [countries, setCountries] = React.useState<string[] | null>(null);
-    const [provinces, setProvinces] = React.useState<string[] | null>(null);
+    const [countries, setCountries] = React.useState<[string, number][] | null>(null);
+    const [provinces, setProvinces] = React.useState<[string, number][] | null>(null);
     const [dropdownState, setDropdownState] = React.useState<"country" | "province" | null>(null);
 
     React.useEffect(() => {
@@ -39,14 +39,22 @@ export const LocationSelector = ({
             </DropdownToggle>
             <DropdownMenu>
                 {countryShortlist.map((country, index) => {
+                    const [name, confirmed] = countries.find(([name]) => name === country)!;
                     return <DropdownItem key={index} onClick={() => setCountry(country)}>
-                        {country}
+                        <div className="row">
+                            <div className="col">{name}</div>
+                            <div className="col-auto">{confirmed.toLocaleString("id")}</div>
+                        </div>
                     </DropdownItem>;
                 })}
                 <DropdownItem divider />
                 {countries.map((country, index) => {
-                    return <DropdownItem key={index} onClick={() => setCountry(country)}>
-                        {country}
+                    const [name, confirmed] = country;
+                    return <DropdownItem key={index} onClick={() => setCountry(name)}>
+                        <div className="row">
+                            <div className="col">{name}</div>
+                            <div className="col-auto">{confirmed.toLocaleString("id")}</div>
+                        </div>
                     </DropdownItem>;
                 })}
             </DropdownMenu>
@@ -60,8 +68,12 @@ export const LocationSelector = ({
             <DropdownMenu>
                 <DropdownItem onClick={() => setProvince(null)}>NASIONAL</DropdownItem>
                 {provinces.map((province, index) => {
-                    return <DropdownItem key={index} onClick={() => setProvince(province)}>
-                        {province}
+                    const [name, confirmed] = province;
+                    return <DropdownItem key={index} onClick={() => setProvince(name)}>
+                        <div className="row">
+                            <div className="col">{name}</div>
+                            <div className="col-auto">{confirmed.toLocaleString("id")}</div>
+                        </div>
                     </DropdownItem>;
                 })}
             </DropdownMenu>

@@ -13,9 +13,14 @@
   border-color: #cccccc;
 }
 #location-selector .dropdown-menu {
+  width: 220px;
   max-height: 500px;
   overflow-y: auto;
   font-size: 13px;
+}
+#location-selector .col,
+#location-selector .col-auto {
+  padding: 0;
 }
 #chart {
   position: fixed;
