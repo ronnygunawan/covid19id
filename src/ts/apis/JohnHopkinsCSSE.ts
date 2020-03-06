@@ -162,11 +162,65 @@ export async function getProvinces(country: string): Promise<[string, number][]>
     return provinces.map(province => [province, confirmedByProvince[province]]);
 }
 
-export async function getStatistics(province_state: string | null, country_region: string): Promise<CombinedStatistics | null> {
+export async function getStatistics(province_state: string | null, country_region: string | null): Promise<CombinedStatistics | null> {
     if (allStatistics === null) {
         allStatistics = await getAllStatistics();
     }
-    if (province_state === null) {
+    if (country_region === null) {
+        if (allStatistics.length > 0) {
+            return allStatistics.reduce<CombinedStatistics>((prev, cur) => {
+                for (const ct of cur.TimeSeries) {
+                    const pt = prev.TimeSeries.find(pt => pt.Date === ct.Date);
+                    if (pt !== undefined) {
+                        pt.Confirmed += ct.Confirmed;
+                        pt.Deaths += ct.Deaths;
+                        pt.Recovered += ct.Recovered;
+                    }
+                }
+                return prev;
+            }, {
+                Country_Region: "SELURUH DUNIA",
+                Lat: 0,
+                Long: 0,
+                Province_State: null,
+                TimeSeries: allStatistics[0].TimeSeries.map(t => ({
+                    Date: t.Date,
+                    Confirmed: 0,
+                    Deaths: 0,
+                    Recovered: 0
+                }))
+            });
+        } else {
+            return null;
+        }
+    } else if (country_region === "DI LUAR CHINA") {
+        if (allStatistics.length > 0) {
+            return allStatistics.filter(s => s.Country_Region !== "Mainland China").reduce<CombinedStatistics>((prev, cur) => {
+                for (const ct of cur.TimeSeries) {
+                    const pt = prev.TimeSeries.find(pt => pt.Date === ct.Date);
+                    if (pt !== undefined) {
+                        pt.Confirmed += ct.Confirmed;
+                        pt.Deaths += ct.Deaths;
+                        pt.Recovered += ct.Recovered;
+                    }
+                }
+                return prev;
+            }, {
+                Country_Region: "DI LUAR CHINA",
+                Lat: 0,
+                Long: 0,
+                Province_State: null,
+                TimeSeries: allStatistics[0].TimeSeries.map(t => ({
+                    Date: t.Date,
+                    Confirmed: 0,
+                    Deaths: 0,
+                    Recovered: 0
+                }))
+            });
+        } else {
+            return null;
+        }
+    } else if (province_state === null) {
         const statistics = allStatistics.filter(stat => stat.Country_Region === country_region);
         if (statistics.length > 1) {
             return statistics.reduce<CombinedStatistics>((prev, cur) => {

@@ -3,7 +3,7 @@ import * as JohnHopkinsCSSE from "../apis/JohnHopkinsCSSE";
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 
 interface Props {
-    onChange: (province: string | null, country: string) => void;
+    onChange: (province: string | null, country: string | null) => void;
 }
 
 const countryShortlist = ["Indonesia", "Mainland China", "South Korea", "Iran", "Italy", "Japan"];
@@ -11,7 +11,7 @@ const countryShortlist = ["Indonesia", "Mainland China", "South Korea", "Iran", 
 export const LocationSelector = ({
     onChange
 }: Props) => {
-    const [country, setCountry] = React.useState<string>("Indonesia");
+    const [country, setCountry] = React.useState<string | null>("Indonesia");
     const [province, setProvince] = React.useState<string | null>(null);
     const [countries, setCountries] = React.useState<[string, number][] | null>(null);
     const [provinces, setProvinces] = React.useState<[string, number][] | null>(null);
@@ -24,17 +24,54 @@ export const LocationSelector = ({
 
     React.useEffect(() => {
         setProvinces(null);
-        JohnHopkinsCSSE.getProvinces(country).then(setProvinces);
+        if (country !== null) {
+            JohnHopkinsCSSE.getProvinces(country).then(setProvinces);
+        }
     }, [country]);
+
+    const worldwideConfirmed = countries !== null
+        ? countries.reduce<number>((agg, cur) => {
+            const [name, confirmed] = cur;
+            return agg + confirmed;
+        }, 0)
+        : null;
+
+    const outsideChinaConfirmed = countries !== null
+        ? countries.filter(([name]) => name !== "Mainland China").reduce<number>((agg, cur) => {
+            const [name, confirmed] = cur;
+            return agg + confirmed;
+        }, 0)
+        : null;
 
     return <div id="location-selector">
         {countries !== null && <Dropdown
             isOpen={dropdownState === "country"}
             toggle={() => setDropdownState(dropdownState === "country" ? null : "country")}>
             <DropdownToggle caret>
-                {country}
+                {country || "SELURUH DUNIA"}
             </DropdownToggle>
             <DropdownMenu>
+                <DropdownItem onClick={() => {
+                    setCountry(null);
+                    setProvince(null);
+                    onChange(null, null);
+                }}>
+                    <div className="row">
+                        <div className="col">SELURUH DUNIA</div>
+                        <div className="col-auto">{worldwideConfirmed !== null ? worldwideConfirmed.toLocaleString("id") : ""}</div>
+                    </div>
+                </DropdownItem>
+                <DropdownItem onClick={() => {
+                    setCountry("DI LUAR CHINA");
+                    setProvince(null);
+                    onChange(null, "DI LUAR CHINA");
+                }}>
+                    <div className="row">
+                        <div className="col">DI LUAR CHINA</div>
+                        <div className="col-auto">{outsideChinaConfirmed !== null ? outsideChinaConfirmed.toLocaleString("id") : ""}</div>
+                    </div>
+                </DropdownItem>
+                <DropdownItem divider />
                 {countryShortlist.filter(name => countries.find(([n]) => n === name)).map((c, index) => {
                     const [name, confirmed] = countries.find(([n]) => n === c)!;
                     return <DropdownItem key={index} onClick={() => {
