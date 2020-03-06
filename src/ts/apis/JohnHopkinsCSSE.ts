@@ -189,7 +189,7 @@ export async function getStatistics(province_state: string | null, country_regio
                 }))
             });
         } else {
-            return statistics[0];
+            return statistics[0] || null;
         }
     } else {
         return allStatistics.find(stat => stat.Province_State === province_state && stat.Country_Region === country_region) || null;

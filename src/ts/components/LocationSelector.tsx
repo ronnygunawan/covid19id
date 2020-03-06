@@ -38,8 +38,8 @@ export const LocationSelector = ({
                 {country}
             </DropdownToggle>
             <DropdownMenu>
-                {countryShortlist.map((country, index) => {
-                    const [name, confirmed] = countries.find(([name]) => name === country)!;
+                {countryShortlist.filter(name => countries.find(([n]) => n === name)).map((country, index) => {
+                    const [name, confirmed] = countries.find(([n]) => n === country)!;
                     return <DropdownItem key={index} onClick={() => setCountry(country)}>
                         <div className="row">
                             <div className="col">{name}</div>
