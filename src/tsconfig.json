@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "noImplicitAny": true,
+        "noEmitOnError": true,
+        "removeComments": true,
+        "strictNullChecks": true,
+        "sourceMap": true,
+        "target": "es6",
+        "module": "commonjs",
+        "jsx": "react",
+        "allowSyntheticDefaultImports": true,
+        "moduleResolution": "node",
+        "lib": [
+            "es6",
+            "dom"
+        ]
+    },
+    "files": [
+        "ts/index.tsx"
+    ],
+    "exclude": [
+        "node_modules",
+        "typings",
+        "wwwroot",
+        "bin",
+        "obj"
+    ],
+    "compileOnSave": true
+}

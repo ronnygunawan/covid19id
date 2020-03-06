@@ -1,0 +1,22 @@
+{
+  "name": "covid19id",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "Ronny Gunawan",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "source-map": "^0.7.3",
+    "source-map-loader": "^0.2.4",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
+  }
+}
