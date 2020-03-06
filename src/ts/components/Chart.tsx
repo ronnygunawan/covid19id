@@ -15,10 +15,10 @@ export const Chart = ({
     keyEvents,
     suspectDeaths
 }: Props) => {
-    const markers: CartesianMarkerProps[] = keyEvents !== null
+    const markers: CartesianMarkerProps[] = keyEvents !== null && data.length >= 1
         ? keyEvents.map((keyEvent): CartesianMarkerProps => ({
             axis: "x",
-            value: keyEvent.date,
+            value: data[0].data.find(d => d.x === keyEvent.date) ? keyEvent.date : "TODAY",
             legend: keyEvent.marker,
             textStyle: {
                 fontSize: 12
