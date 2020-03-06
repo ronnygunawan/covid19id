@@ -22,6 +22,23 @@
 #location-selector .col-auto {
   padding: 0;
 }
+#mode-selector {
+  position: relative;
+  padding: 20px 110px 20px 0;
+  z-index: 1;
+}
+#mode-selector .dropdown-toggle {
+  font-size: 13px;
+  background: #ffffff;
+  color: #333333;
+  border-color: #cccccc;
+}
+#mode-selector .dropdown-menu {
+  width: 220px;
+  max-height: 500px;
+  overflow-y: auto;
+  font-size: 13px;
+}
 #chart {
   position: fixed;
   top: 0;

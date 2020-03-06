@@ -10,7 +10,7 @@ interface Props {
     suspectDeaths: SuspectDeath[] | null;
 }
 
-export const Chart = ({
+export const CasesChart = ({
     data,
     keyEvents,
     suspectDeaths
