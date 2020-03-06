@@ -1,5 +1,5 @@
 export interface CombinedStatistics {
-    Province_State: string;
+    Province_State: string | null;
     Country_Region: string;
     Lat: number;
     Long: number;

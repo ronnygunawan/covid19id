@@ -6,7 +6,7 @@ const deathCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19
 const recoveredCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv";
 
 interface RealtimeApiDailyStatistics {
-    Province_State: string;
+    Province_State: string | null;
     Country_Region: string;
     Last_Update: number;
     Lat: number;
@@ -70,17 +70,21 @@ async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
     const deathCases = parseCsv(await deathCasesResponse.text());
     const recoveredCasesResponse = await fetch(recoveredCasesUrl);
     const recoveredCases = parseCsv(await recoveredCasesResponse.text());
-    return confirmedCases.map(cc => ({
+    return confirmedCases.map((cc): CombinedStatistics => ({
         ...cc,
         Province_State: cc.Province_State === "" ? null : cc.Province_State,
         TimeSeries: cc.TimeSeries.map(c => {
             const confirmed = c.Cases;
             const deaths = deathCases
-                .find(dc => dc.Province_State === cc.Province_State && dc.Country_Region === cc.Country_Region)
-                .TimeSeries.find(d => d.Date === c.Date).Cases;
+                .find(dc => dc.Province_State === cc.Province_State && dc.Country_Region === cc.Country_Region)!
+                ?.TimeSeries.find(d => d.Date === c.Date)
+                ?.Cases;
+            if (deaths === undefined) throw new Error();
             const recovered = recoveredCases
-                .find(rc => rc.Province_State === cc.Province_State && rc.Country_Region === cc.Country_Region)
-                .TimeSeries.find(r => r.Date === c.Date).Cases;
+                .find(rc => rc.Province_State === cc.Province_State && rc.Country_Region === cc.Country_Region)!
+                ?.TimeSeries.find(r => r.Date === c.Date)
+                ?.Cases;
+            if (recovered === undefined) throw new Error();
             return {
                 Date: c.Date,
                 Confirmed: confirmed,
@@ -94,8 +98,8 @@ async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
 async function getAllStatistics(): Promise<CombinedStatistics[]> {
     const historicalStatistics = await getHistoricalStatistics();
     const realtimeStatistics = await getRealtimeStatistics();
-    const allStatistics: CombinedStatistics[] = realtimeStatistics.map(rs => {
-        const hs = historicalStatistics.find(hs => hs.Province_State === rs.Province_State && hs.Country_Region === rs.Country_Region) || {
+    const allStatistics: CombinedStatistics[] = realtimeStatistics.map((rs): CombinedStatistics => {
+        const hs: CombinedStatistics = historicalStatistics.find(hs => hs.Province_State === rs.Province_State && hs.Country_Region === rs.Country_Region) || {
             Province_State: rs.Province_State,
             Country_Region: rs.Country_Region,
             Lat: rs.Lat,
@@ -120,6 +124,10 @@ async function getAllStatistics(): Promise<CombinedStatistics[]> {
 
 var allStatistics: CombinedStatistics[] | null = null;
 
+export async function loadStatistics(): Promise<void> {
+    allStatistics = await getAllStatistics();
+}
+
 export async function getCountries(): Promise<string[]> {
     if (allStatistics === null) {
         allStatistics = await getAllStatistics();
@@ -141,14 +149,14 @@ export async function getProvinces(country: string): Promise<string[]> {
     const provinces = Object.keys(allStatistics.filter(stat => stat.Country_Region === country && stat.Province_State).reduce<{
         [province: string]: 1
     }>((prev, cur) => {
-        prev[cur.Province_State] = 1;
+        prev[cur.Province_State!] = 1;
         return prev;
     }, {}));
     provinces.sort((a, b) => a.localeCompare(b));
     return provinces;
 }
 
-export async function getStatistics(province_state: string | null, country_region: string): Promise<CombinedStatistics> {
+export async function getStatistics(province_state: string | null, country_region: string): Promise<CombinedStatistics | null> {
     if (allStatistics === null) {
         allStatistics = await getAllStatistics();
     }
@@ -158,9 +166,11 @@ export async function getStatistics(province_state: string | null, country_regio
             return statistics.reduce<CombinedStatistics>((prev, cur) => {
                 for (const ct of cur.TimeSeries) {
                     const pt = prev.TimeSeries.find(pt => pt.Date === ct.Date);
-                    pt.Confirmed += ct.Confirmed;
-                    pt.Deaths += ct.Deaths;
-                    pt.Recovered += ct.Recovered;
+                    if (pt !== undefined) {
+                        pt.Confirmed += ct.Confirmed;
+                        pt.Deaths += ct.Deaths;
+                        pt.Recovered += ct.Recovered;
+                    }
                 }
                 return prev;
             }, {
@@ -176,6 +186,6 @@ export async function getStatistics(province_state: string | null, country_regio
             return statistics[0];
         }
     } else {
-        return allStatistics.find(stat => stat.Province_State === province_state && stat.Country_Region === country_region);
+        return allStatistics.find(stat => stat.Province_State === province_state && stat.Country_Region === country_region) || null;
     }
 }

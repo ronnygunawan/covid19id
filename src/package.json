@@ -6,12 +6,15 @@
   "author": "Ronny Gunawan",
   "license": "MIT",
   "dependencies": {
+    "@nivo/line": "^0.61.1",
     "react": "^16.13.0",
-    "react-dom": "^16.13.0"
+    "react-dom": "^16.13.0",
+    "reactstrap": "^8.4.1"
   },
   "devDependencies": {
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
+    "@types/reactstrap": "^8.4.2",
     "source-map": "^0.7.3",
     "source-map-loader": "^0.2.4",
     "ts-loader": "^6.2.1",
