@@ -33,7 +33,7 @@ export const CasesChart = ({
                 lineStyle: {
                     stroke: "rgba(255, 0, 0, 0.5)"
                 }
-            })
+            });
         }
     }
 
@@ -63,7 +63,7 @@ export const CasesChart = ({
                 legendOffset: -40,
                 legendPosition: "middle"
             }}
-            colors={{ scheme: "nivo" }}
+            colors={{ scheme: "category10" }}
             pointSize={10}
             pointColor={{ theme: "background" }}
             pointBorderWidth={2}
