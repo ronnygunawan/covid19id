@@ -1,12 +1,15 @@
 import * as React from "react";
 import { ResponsiveLine, Serie } from "@nivo/line";
+import { KeyEvent } from "../models/KeyEvent";
 
 interface Props {
-    data: Serie[]
+    data: Serie[];
+    keyEvents: KeyEvent[] | null;
 }
 
 export const Chart = ({
-    data
+    data,
+    keyEvents
 }: Props) => {
     return <div id="chart">
         <ResponsiveLine
