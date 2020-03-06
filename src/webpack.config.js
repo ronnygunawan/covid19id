@@ -8,7 +8,7 @@ module.exports = {
 	},
 	output: {
 		filename: "[name].bundle.js",
-		path: path.resolve("./js/")
+		path: path.resolve("../docs/js/")
 	},
 	resolve: {
 		extensions: [".ts", ".tsx", ".js", ".jsx"]
