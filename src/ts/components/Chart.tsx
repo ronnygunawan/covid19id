@@ -1,5 +1,6 @@
 import * as React from "react";
 import { ResponsiveLine, Serie } from "@nivo/line";
+import { CartesianMarkerProps } from "@nivo/core"
 import { KeyEvent } from "../models/KeyEvent";
 
 interface Props {
@@ -11,6 +12,17 @@ export const Chart = ({
     data,
     keyEvents
 }: Props) => {
+    const markers: CartesianMarkerProps[] | undefined = keyEvents !== null
+        ? keyEvents.map((keyEvent): CartesianMarkerProps => ({
+            axis: "x",
+            value: keyEvent.date,
+            legend: keyEvent.marker,
+            textStyle: {
+                fontSize: 12
+            }
+        }))
+        : undefined;
+
     return <div id="chart">
         <ResponsiveLine
             data={data}
@@ -71,6 +83,7 @@ export const Chart = ({
                         }
                     ]
                 }
-            ]} />
+            ]}
+            markers={markers} />
     </div>
 }

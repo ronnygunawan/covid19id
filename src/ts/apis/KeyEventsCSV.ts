@@ -1,6 +1,6 @@
 import { KeyEvent } from "../models/KeyEvent";
 
-const keyEventsUrl = "https://github.com/ronnygunawan/covid19id/raw/master/data/keyevents.csv";
+const keyEventsUrl = "https://raw.githubusercontent.com/ronnygunawan/covid19id/master/data/keyevents.csv";
 
 async function _getKeyEvents(): Promise<KeyEvent[]> {
     const response = await fetch(keyEventsUrl);
