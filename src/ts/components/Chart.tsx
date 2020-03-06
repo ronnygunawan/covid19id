@@ -25,7 +25,7 @@ export const Chart = ({
             }
         }))
         : [];
-    if (suspectDeaths !== null) {
+    if (suspectDeaths !== null && data.length >= 1) {
         for (const suspectDeath of suspectDeaths) {
             markers.push({
                 axis: "x",

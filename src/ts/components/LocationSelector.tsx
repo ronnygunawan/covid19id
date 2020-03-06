@@ -19,16 +19,13 @@ export const LocationSelector = ({
 
     React.useEffect(() => {
         JohnHopkinsCSSE.getCountries().then(setCountries);
+        onChange(province, country);
     }, []);
 
     React.useEffect(() => {
         setProvinces(null);
         JohnHopkinsCSSE.getProvinces(country).then(setProvinces);
     }, [country]);
-
-    React.useEffect(() => {
-        onChange(province, country);
-    }, [country, province]);
 
     return <div id="location-selector">
         {countries !== null && <Dropdown
@@ -38,9 +35,15 @@ export const LocationSelector = ({
                 {country}
             </DropdownToggle>
             <DropdownMenu>
-                {countryShortlist.filter(name => countries.find(([n]) => n === name)).map((country, index) => {
-                    const [name, confirmed] = countries.find(([n]) => n === country)!;
-                    return <DropdownItem key={index} onClick={() => setCountry(country)}>
+                {countryShortlist.filter(name => countries.find(([n]) => n === name)).map((c, index) => {
+                    const [name, confirmed] = countries.find(([n]) => n === c)!;
+                    return <DropdownItem key={index} onClick={() => {
+                        if (country !== c) {
+                            setCountry(c);
+                            setProvince(null);
+                            onChange(null, c);
+                        }
+                    }}>
                         <div className="row">
                             <div className="col">{name}</div>
                             <div className="col-auto">{confirmed.toLocaleString("id")}</div>
@@ -48,9 +51,15 @@ export const LocationSelector = ({
                     </DropdownItem>;
                 })}
                 <DropdownItem divider />
-                {countries.map((country, index) => {
-                    const [name, confirmed] = country;
-                    return <DropdownItem key={index} onClick={() => setCountry(name)}>
+                {countries.map((c, index) => {
+                    const [name, confirmed] = c;
+                    return <DropdownItem key={index} onClick={() => {
+                        if (country !== name) {
+                            setCountry(name);
+                            setProvince(null);
+                            onChange(null, name);
+                        }
+                    }}>
                         <div className="row">
                             <div className="col">{name}</div>
                             <div className="col-auto">{confirmed.toLocaleString("id")}</div>
@@ -66,10 +75,16 @@ export const LocationSelector = ({
                 {province !== null ? province : "NASIONAL"}
             </DropdownToggle>
             <DropdownMenu>
-                <DropdownItem onClick={() => setProvince(null)}>NASIONAL</DropdownItem>
+                <DropdownItem onClick={() => {
+                    setProvince(null);
+                    onChange(null, country);
+                }}>NASIONAL</DropdownItem>
                 {provinces.map((province, index) => {
                     const [name, confirmed] = province;
-                    return <DropdownItem key={index} onClick={() => setProvince(name)}>
+                    return <DropdownItem key={index} onClick={() => {
+                        setProvince(name);
+                        onChange(name, country);
+                    }}>
                         <div className="row">
                             <div className="col">{name}</div>
                             <div className="col-auto">{confirmed.toLocaleString("id")}</div>
