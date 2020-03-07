@@ -1,3 +1,10 @@
+.row {
+  margin: 0;
+}
+.col,
+.col-auto {
+  padding: 0;
+}
 #location-selector {
   position: relative;
   padding: 20px 60px;
@@ -18,13 +25,9 @@
   overflow-y: auto;
   font-size: 13px;
 }
-#location-selector .col,
-#location-selector .col-auto {
-  padding: 0;
-}
 #mode-selector {
   position: relative;
-  padding: 20px 110px 20px 0;
+  padding: 20px 0;
   z-index: 1;
 }
 #mode-selector .dropdown-toggle {
@@ -34,6 +37,23 @@
   border-color: #cccccc;
 }
 #mode-selector .dropdown-menu {
+  width: 220px;
+  max-height: 500px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+#scale-selector {
+  position: relative;
+  padding: 20px 110px 20px 0;
+  z-index: 1;
+}
+#scale-selector .dropdown-toggle {
+  font-size: 13px;
+  background: #ffffff;
+  color: #333333;
+  border-color: #cccccc;
+}
+#scale-selector .dropdown-menu {
   width: 220px;
   max-height: 500px;
   overflow-y: auto;

@@ -6,12 +6,14 @@ import { SuspectDeath } from "../models/SuspectDeath";
 
 interface Props {
     data: Serie[];
+    scale: "linear" | "log",
     keyEvents: KeyEvent[] | null;
     suspectDeaths: SuspectDeath[] | null;
 }
 
-export const CasesChart = ({
+export const LineChart = ({
     data,
+    scale,
     keyEvents,
     suspectDeaths
 }: Props) => {
@@ -37,12 +39,53 @@ export const CasesChart = ({
         }
     }
 
+    if (scale === "log") {
+        for (const serie of data) {
+            for (let i = 0; i < serie.data.length; i++) {
+                if (serie.data[i].y !<= 0) {
+                    serie.data[i] = {
+                        x: serie.data[i].x,
+                        y: 0.00000000000000000000000000000000000000000001
+                    };
+                }
+            }
+        }
+    }
+
+    const max = data.reduce<number>((prev, cur) => {
+        const max = cur.data.reduce<number>((prev, cur) => {
+            const y = cur.y as number;
+            if (y > prev) {
+                return y;
+            }
+            return prev;
+        }, 0);
+        if (max > prev) {
+            return max;
+        }
+        return prev;
+    }, 0);
+
     return <div id="chart">
         <ResponsiveLine
             data={data}
             margin={{ top: 70, right: 110, bottom: 50, left: 60 }}
             xScale={{ type: "point" }}
-            yScale={{ type: "linear", min: 0, max: "auto", stacked: false }}
+            yScale={{
+                type: scale,
+                min: scale === "linear"
+                    ? 0
+                    : scale === "log"
+                        ? 1
+                        : "auto",
+                max: scale === "log"
+                    ? max > 0
+                        ? max * 2
+                        : 2
+                    : "auto",
+                stacked: false,
+                base: 10
+            }}
             axisTop={null}
             axisRight={null}
             axisBottom={{
@@ -70,7 +113,7 @@ export const CasesChart = ({
             pointBorderColor={{ from: "serieColor" }}
             pointLabel="y"
             pointLabelYOffset={-12}
-            enableArea={true}
+            enableArea={scale === "linear"}
             useMesh={true}
             legends={[
                 {

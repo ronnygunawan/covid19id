@@ -8,7 +8,8 @@ import * as KeyEventsCSV from "./apis/KeyEventsCSV";
 import * as SuspectDeathsCSV from "./apis/SuspectDeathsCSV";
 import { LocationSelector } from "./components/LocationSelector";
 import { ModeSelector, Mode } from "./components/ModeSelector";
-import { CasesChart } from "./components/CasesChart";
+import { ScaleSelector, Scale } from "./components/ScaleSelector";
+import { LineChart } from "./components/LineChart";
 
 interface DailyStatistics {
     Date: string;
@@ -38,6 +39,7 @@ export const App = () => {
     const [keyEvents, setKeyEvents] = React.useState<KeyEvent[] | null>(null);
     const [suspectDeaths, setSuspectDeaths] = React.useState<SuspectDeath[] | null>(null);
     const [mode, setMode] = React.useState<Mode>("Kumulatif");
+    const [scale, setScale] = React.useState<Scale>("linear");
 
     const data: Serie[] = statistics !== null
         ? mode === "Kumulatif"
@@ -127,9 +129,15 @@ export const App = () => {
                     mode={mode}
                     onChange={setMode} />
             </div>
+            <div className="col-auto">
+                <ScaleSelector
+                    scale={scale}
+                    onChange={setScale} />
+            </div>
         </div>
-        <CasesChart
+        <LineChart
             data={data}
+            scale={scale}
             keyEvents={keyEvents}
             suspectDeaths={suspectDeaths} />
     </>;
