@@ -23,15 +23,44 @@ export const LineChart = ({
             value: data[0].data.find(d => d.x === keyEvent.date) ? keyEvent.date : "TODAY",
             legend: keyEvent.marker,
             textStyle: {
-                fontSize: 12
+                fontSize: 10,
+                fontWeight: "bold",
+                letterSpacing: 0.6,
+                transform: "rotate(-90deg) translate(-100vh, 0) translate(130px, -10px)"
             }
         }))
         : [];
     if (suspectDeaths !== null && data.length >= 1) {
-        for (const suspectDeath of suspectDeaths) {
+        const hospitalsByDate = suspectDeaths.reduce<{ [date: string]: string[] }>((agg, cur) => {
+            if (cur.status === "Positive") return agg;
+            const hospitalAndStatus = cur.status === "Negative"
+                ? `${cur.hospital} (Negatif COVID-19)`
+                : cur.hospital;
+            if (agg[cur.date]) {
+                agg[cur.date].push(hospitalAndStatus);
+            } else {
+                agg[cur.date] = [hospitalAndStatus];
+            }
+            return agg;
+        }, {});
+        for (const date in hospitalsByDate) {
+            const hospitals = hospitalsByDate[date];
+            const legend = hospitals.length === 1
+                ? `Kematian suspect di ${hospitals[0]}`
+                : hospitals.length === 2
+                    ? `Kematian suspect di ${hospitals[0]} dan ${hospitals[1]}`
+                    : `Kematian ${hospitals.length} orang suspect`
             markers.push({
                 axis: "x",
-                value: data[0].data.find(d => d.x === suspectDeath.date) ? suspectDeath.date : "TODAY",
+                value: data[0].data.find(d => d.x === date) ? date : "TODAY",
+                legend: legend,
+                textStyle: {
+                    fontSize: 10,
+                    letterSpacing: 0.6,
+                    transform: date === "3/6/20"
+                        ? "rotate(-90deg) translate(-100vh, 0) translate(300px, -10px)"
+                        : "rotate(-90deg) translate(-100vh, 0) translate(130px, -10px)"
+                },
                 lineStyle: {
                     stroke: "rgba(255, 0, 0, 0.5)"
                 }
