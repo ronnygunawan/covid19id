@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as JohnHopkinsCSSE from "../apis/JohnHopkinsCSSE";
+import * as JohnsHopkinsCSSE from "../apis/JohnsHopkinsCSSE";
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 
 interface Props {
@@ -18,14 +18,14 @@ export const LocationSelector = ({
     const [dropdownState, setDropdownState] = React.useState<"country" | "province" | null>(null);
 
     React.useEffect(() => {
-        JohnHopkinsCSSE.getCountries().then(setCountries);
+        JohnsHopkinsCSSE.getCountries().then(setCountries);
         onChange(province, country);
     }, []);
 
     React.useEffect(() => {
         setProvinces(null);
         if (country !== null) {
-            JohnHopkinsCSSE.getProvinces(country).then(setProvinces);
+            JohnsHopkinsCSSE.getProvinces(country).then(setProvinces);
         }
     }, [country]);
 

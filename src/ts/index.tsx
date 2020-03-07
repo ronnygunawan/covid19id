@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { App } from "./App";
-import * as JohnHopkinsCSSE from "./apis/JohnHopkinsCSSE";
+import * as JohnsHopkinsCSSE from "./apis/JohnsHopkinsCSSE";
 
-JohnHopkinsCSSE.loadStatistics().then(() => {
+JohnsHopkinsCSSE.loadStatistics().then(() => {
     ReactDOM.render(
         <App/>,
         document.getElementById("app")

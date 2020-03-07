@@ -3,7 +3,7 @@ import { Serie, Datum } from "@nivo/line";
 import { CombinedStatistics } from "./models/CombinedStatistics";
 import { KeyEvent } from "./models/KeyEvent";
 import { SuspectDeath } from "./models/SuspectDeath";
-import * as JohnHopkinsCSSE from "./apis/JohnHopkinsCSSE";
+import * as JohnsHopkinsCSSE from "./apis/JohnsHopkinsCSSE";
 import * as KeyEventsCSV from "./apis/KeyEventsCSV";
 import * as SuspectDeathsCSV from "./apis/SuspectDeathsCSV";
 import { LocationSelector } from "./components/LocationSelector";
@@ -115,7 +115,7 @@ export const App = () => {
                     setStatistics(null);
                     setKeyEvents(null);
                     setSuspectDeaths(null);
-                    JohnHopkinsCSSE.getStatistics(province, country).then(setStatistics);
+                    JohnsHopkinsCSSE.getStatistics(province, country).then(setStatistics);
                     KeyEventsCSV.getKeyEvents(country).then(setKeyEvents);
                     if (country === "Indonesia") {
                         SuspectDeathsCSV.getSuspectDeaths().then(setSuspectDeaths);
