@@ -11,6 +11,8 @@ interface Props {
     suspectDeaths: SuspectDeath[] | null;
 }
 
+const daysOfWeek = ["MINGGU", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "SABTU"];
+
 export const LineChart = ({
     data,
     scale,
@@ -115,7 +117,19 @@ export const LineChart = ({
                 stacked: false,
                 base: 10
             }}
-            axisTop={null}
+            axisTop={{
+                orient: "top",
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: -60,
+                legendOffset: -36,
+                legendPosition: "middle",
+                format: (value: string): string => {
+                    if (value === "TODAY") return "TODAY";
+                    const date = new Date(value);
+                    return daysOfWeek[date.getDay()];
+                }
+            }}
             axisRight={null}
             axisBottom={{
                 orient: "bottom",
