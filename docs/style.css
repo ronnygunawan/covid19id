@@ -7,7 +7,7 @@
 }
 #location-selector {
   position: relative;
-  padding: 20px 60px;
+  padding: 20px 60px 20px 80px;
   z-index: 1;
 }
 #location-selector .dropdown {
@@ -44,7 +44,7 @@
 }
 #scale-selector {
   position: relative;
-  padding: 20px 110px 20px 0;
+  padding: 20px 120px 20px 0;
   z-index: 1;
 }
 #scale-selector .dropdown-toggle {

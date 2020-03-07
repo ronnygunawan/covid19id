@@ -69,7 +69,7 @@ export const LineChart = ({
     return <div id="chart">
         <ResponsiveLine
             data={data}
-            margin={{ top: 70, right: 110, bottom: 50, left: 60 }}
+            margin={{ top: 70, right: 120, bottom: 50, left: 80 }}
             xScale={{ type: "point" }}
             yScale={{
                 type: scale,
@@ -92,8 +92,7 @@ export const LineChart = ({
                 orient: "bottom",
                 tickSize: 5,
                 tickPadding: 5,
-                tickRotation: 0,
-                legend: "Tanggal (m/d/yy)",
+                tickRotation: -60,
                 legendOffset: 36,
                 legendPosition: "middle"
             }}
@@ -103,7 +102,7 @@ export const LineChart = ({
                 tickPadding: 5,
                 tickRotation: 0,
                 legend: "Jumlah Penderita",
-                legendOffset: -40,
+                legendOffset: -60,
                 legendPosition: "middle"
             }}
             colors={{ scheme: "category10" }}
