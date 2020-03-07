@@ -27,7 +27,7 @@ export async function loadKeyEvents(): Promise<void> {
     keyEvents = await _getKeyEvents();
 }
 
-export async function getKeyEvents(country_region: string): Promise<KeyEvent[]> {
+export async function getKeyEvents(country_region: string | null): Promise<KeyEvent[]> {
     if (keyEvents === null) {
         keyEvents = await _getKeyEvents();
     }

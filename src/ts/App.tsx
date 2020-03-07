@@ -116,9 +116,7 @@ export const App = () => {
                     setKeyEvents(null);
                     setSuspectDeaths(null);
                     JohnHopkinsCSSE.getStatistics(province, country).then(setStatistics);
-                    if (country !== null) {
-                        KeyEventsCSV.getKeyEvents(country).then(setKeyEvents);
-                    }
+                    KeyEventsCSV.getKeyEvents(country).then(setKeyEvents);
                     if (country === "Indonesia") {
                         SuspectDeathsCSV.getSuspectDeaths().then(setSuspectDeaths);
                     }
