@@ -1,7 +1,8 @@
 Id,Date,City,Hospital,Age,COVID-19 Status,Official Cause of Death,News Url
 1,2/22/20,Batam,RSBP Batam,61,Negative,Complication,https://regional.kompas.com/read/2020/03/04/07370011/fakta-pasien-suspect-corona-di-batam-meninggal-hasil-negatif-perawat-dan?page=all
 2,2/23/20,Semarang,RSUP dr Kariadi Semarang,37,Negative,H1N1pdm09 Infection,https://nasional.kompas.com/read/2020/02/27/14420131/menkes-pasien-yang-meninggal-di-rs-kariadi-semarang-karena-virus-h1n1-bukan
-3,3/3/20,Cianjur,RSDH Cianjur,50,Negative,Complication,https://news.detik.com/berita-jawa-barat/d-4925058/pegawai-telkom-negatif-corona-yang-meninggal-di-cianjur-ternyata-komplikasi
-4,3/4/20,Malang,RSSA Malang,,Negative,Respiratory Infection,https://tagar.id/rssa-malang-batah-pasien-meninggal-karena-corona
-5,3/6/20,Jakarta Utara,RSPI Sulianti Saroso,65,,Complication,https://news.detik.com/berita/d-4928259/seorang-pasien-suspect-corona-meninggal-dunia-di-rspi-sulianti-saroso
-6,3/6/20,Yogyakarta,RSUP dr Sardjito,74,Negative,Bacterial Pneumonia,https://kumparan.com/kumparannews/pasien-suspect-corona-di-rs-sardjito-yogyakarta-meninggal-1syMdShVkcy
+3,3/1/20,Sukabumi,RSUD R Syamsudin,57,,,https://regional.kompas.com/read/2020/03/02/19593561/seorang-pasien-di-sukabumi-meninggal-saat-diisolasi-begini-penjelasan-wali
+4,3/3/20,Cianjur,RSDH Cianjur,50,Negative,Complication,https://news.detik.com/berita-jawa-barat/d-4925058/pegawai-telkom-negatif-corona-yang-meninggal-di-cianjur-ternyata-komplikasi
+5,3/3/20,Malang,RSSA Malang,,Negative,Respiratory Infection,https://tagar.id/rssa-malang-batah-pasien-meninggal-karena-corona
+6,3/6/20,Jakarta Utara,RSPI Sulianti Saroso,65,,Pneumonia,https://news.detik.com/berita/d-4928645/rspi-ss-pasien-yang-diisolasi-meninggal-karena-pneumonia
+7,3/6/20,Yogyakarta,RSUP dr Sardjito,74,Negative,Bacterial Pneumonia,https://kumparan.com/kumparannews/pasien-suspect-corona-di-rs-sardjito-yogyakarta-meninggal-1syMdShVkcy
