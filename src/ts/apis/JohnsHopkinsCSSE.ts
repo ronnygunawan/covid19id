@@ -1,7 +1,7 @@
 import { CombinedStatistics } from "../models/CombinedStatistics";
 import * as Papa from "papaparse";
 
-const realtimeUrl = "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases/FeatureServer/1/query?f=json&where=Confirmed%20%3E%200&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc%2CCountry_Region%20asc%2CProvince_State%20asc&resultOffset=0&resultRecordCount=250&cacheHint=true";
+const realtimeUrl = "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases/FeatureServer/1/query?f=json&where=Confirmed%20%3E%200&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc&outSR=102100&resultOffset=0&resultRecordCount=250&cacheHint=true";
 const confirmedCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
 const deathCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv";
 const recoveredCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv";
@@ -34,10 +34,16 @@ interface CsvModel {
     }[];
 }
 
-async function getRealtimeStatistics(): Promise<RealtimeApiDailyStatistics[]> {
+export async function getRealtimeStatistics(): Promise<RealtimeApiDailyStatistics[]> {
     const response = await fetch(realtimeUrl);
     const result: RealtimeApiResult = await response.json();
-    return result.features.map(feature => feature.attributes);
+    return result.features.map(feature => {
+        const stat = feature.attributes;
+        return {
+            ...stat,
+            Province_State: stat.Province_State || null
+        };
+    });
 }
 
 function parseCsv(csv: string): CsvModel[] {
@@ -67,7 +73,7 @@ function parseCsv(csv: string): CsvModel[] {
     return records;
 }
 
-async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
+export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
     const confirmedCasesResponse = await fetch(confirmedCasesUrl);
     const confirmedCases = parseCsv(await confirmedCasesResponse.text());
     const deathCasesResponse = await fetch(deathCasesUrl);

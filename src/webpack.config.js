@@ -4,7 +4,7 @@ var path = require("path");
 module.exports = {
 	mode: "production",
 	entry: {
-        app: path.resolve("./ts/index.tsx")
+		app: path.resolve("./ts/index.tsx")
 	},
 	output: {
 		filename: "[name].bundle.js",
