@@ -1,5 +1,6 @@
 import { CombinedStatistics } from "../models/CombinedStatistics";
 import * as Papa from "papaparse";
+import { USStates } from "../helpers/USStates";
 
 const realtimeUrl = "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases/FeatureServer/1/query?f=json&where=Confirmed%20%3E%200&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc&outSR=102100&resultOffset=0&resultRecordCount=250&cacheHint=true";
 const confirmedCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
@@ -51,10 +52,15 @@ function parseCsv(csv: string): CsvModel[] {
         header: false
     });
     const [header, ...csvRows]: string[][] = csvData.data;
-    const [,,,, ...dates]: string[] = header;
+    const [, , , , ...dates]: string[] = header;
     const records: CsvModel[] = [];
     for (const csvRow of csvRows) {
-        const [province_state, country_region, lat, long, ...counts] = csvRow;
+        const [city_province_state, country_region, lat, long, ...counts] = csvRow;
+        let province_state = city_province_state;
+        if (country_region === "US") {
+            const [city, state_code] = city_province_state.split(", ");
+            province_state = USStates[state_code];
+        }
         const record: CsvModel = {
             Province_State: province_state,
             Country_Region: country_region,
