@@ -35,6 +35,40 @@ interface CsvModel {
     }[];
 }
 
+const normalizeCountryName = (name: string): string => {
+    if (name === "Republic of Korea") {
+        return "South Korea"
+    } else if (name === "Hong Kong SAR") {
+        return "Hong Kong";
+    } else if (name === "Iran (Islamic Republic of)") {
+        return "Iran";
+    } else if (name === "occupied Palestinian territory") {
+        return "Palestine";
+    } else if (name === "Macao SAR") {
+        return "Macau";
+    } else if (name === "Republic of Moldova") {
+        return "Moldova";
+    } else if (name === "Russian Federation") {
+        return "Russia";
+    } else if (name === "Saint Martin") {
+        return "St. Martin";
+    } else if (name === "Taipei and environs") {
+        return "Taiwan";
+    } else if (name === "Viet Nam") {
+        return "Vietnam";
+    } else {
+        return name;
+    }
+}
+
+const normalizeProvinceName = (name: string): string => {
+    if (name === '"Diamond Princess" cruise ship') {
+        return "Diamond Princess cruise ship";
+    } else {
+        return name;
+    }
+}
+
 export async function getRealtimeStatistics(): Promise<RealtimeApiDailyStatistics[]> {
     const response = await fetch(realtimeUrl);
     const result: RealtimeApiResult = await response.json();
@@ -42,7 +76,8 @@ export async function getRealtimeStatistics(): Promise<RealtimeApiDailyStatistic
         const stat = feature.attributes;
         return {
             ...stat,
-            Province_State: stat.Province_State || null
+            Province_State: stat.Province_State ? normalizeProvinceName(stat.Province_State) : null,
+            Country_Region: normalizeCountryName(stat.Country_Region)
         };
     });
 }
@@ -55,11 +90,18 @@ function parseCsv(csv: string): CsvModel[] {
     const [, , , , ...dates]: string[] = header;
     const records: CsvModel[] = [];
     for (const csvRow of csvRows) {
-        const [city_province_state, country_region, lat, long, ...counts] = csvRow;
+        const [city_province_state, country, lat, long, ...counts] = csvRow;
+        let country_region = country;
         let province_state = city_province_state;
         if (country_region === "US") {
-            const [city, state_code] = city_province_state.split(", ");
-            province_state = USStates[state_code];
+            if (city_province_state === "Grand Princess Cruise Ship") {
+                province_state = "Grand Princess";
+            } else if (city_province_state.endsWith("(From Diamond Princess)")) {
+                province_state = "Diamond Princess";
+            } else {
+                const [city, state_code] = city_province_state.split(", ");
+                province_state = USStates[state_code];
+            }
         }
         const record: CsvModel = {
             Province_State: province_state,
