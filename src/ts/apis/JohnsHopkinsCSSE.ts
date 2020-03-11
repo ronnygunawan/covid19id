@@ -35,8 +35,16 @@ interface CsvModel {
     }[];
 }
 
-const normalizeCountryName = (name: string): string => {
-    if (name === "Mainland China") {
+const normalizeName = (name: string): string => {
+    if (!name) {
+        return name;
+    } else if (name === '"Diamond Princess" cruise ship') {
+        return "Diamond Princess cruise ship";
+    } else if (name === "Grand Princess Cruise Ship") {
+        return "Grand Princess";
+    } else if (name.endsWith("(From Diamond Princess)")) {
+        return "Diamond Princess";
+    } else if (name === "Mainland China") {
         return "China";
     } else if (name === "Republic of Korea") {
         return "South Korea"
@@ -63,31 +71,47 @@ const normalizeCountryName = (name: string): string => {
     }
 }
 
-const normalizeProvinceName = (name: string): string => {
-    if (name === '"Diamond Princess" cruise ship') {
-        return "Diamond Princess cruise ship";
-    } else if (name === "Hong Kong SAR") {
-        return "Hong Kong";
-    } else if (name === "Macao SAR") {
-        return "Macau";
-    } else if (name === "Taipei and environs") {
-        return "Taiwan";
-    } else {
-        return name;
-    }
-}
-
 export async function getRealtimeStatistics(): Promise<RealtimeApiDailyStatistics[]> {
     const response = await fetch(realtimeUrl);
     const result: RealtimeApiResult = await response.json();
-    return result.features.map(feature => {
+    return result.features.reduce((agg: RealtimeApiDailyStatistics[], feature) => {
         const stat = feature.attributes;
-        return {
+        const dailyStat = {
             ...stat,
-            Province_State: stat.Province_State ? normalizeProvinceName(stat.Province_State) : null,
-            Country_Region: normalizeCountryName(stat.Country_Region)
+            Province_State: stat.Province_State ? normalizeName(stat.Province_State) : null,
+            Country_Region: normalizeName(stat.Country_Region)
         };
-    });
+        switch (dailyStat.Country_Region) {
+            case "China":
+                switch (dailyStat.Province_State) {
+                    case "Hong Kong":
+                    case "Macau":
+                    case "Taiwan":
+                        agg.push({
+                            ...dailyStat,
+                            Country_Region: dailyStat.Province_State,
+                            Province_State: null
+                        });
+                        break;
+                    default:
+                        agg.push(dailyStat);
+                        break;
+                }
+                break;
+            case "Hong Kong":
+            case "Macau":
+            case "Taiwan":
+                agg.push({
+                    ...dailyStat,
+                    Province_State: null
+                });
+                break;
+            default:
+                agg.push(dailyStat);
+                break;
+        }
+        return agg;
+    }, []);
 }
 
 function parseCsv(csv: string): CsvModel[] {
@@ -111,9 +135,11 @@ function parseCsv(csv: string): CsvModel[] {
                 province_state = USStates[state_code];
             }
         }
+        province_state = normalizeName(province_state);
+        country_region = normalizeName(country_region);
         const record: CsvModel = {
             Province_State: province_state,
-            Country_Region: normalizeCountryName(country_region),
+            Country_Region: country_region,
             Lat: parseFloat(lat),
             Long: parseFloat(long),
             TimeSeries: dates.map((date, i) => {
@@ -124,7 +150,35 @@ function parseCsv(csv: string): CsvModel[] {
                 };
             })
         };
-        records.push(record);
+        switch (record.Country_Region) {
+            case "China":
+                switch (record.Province_State) {
+                    case "Hong Kong":
+                    case "Macau":
+                    case "Taiwan":
+                        records.push({
+                            ...record,
+                            Country_Region: record.Province_State,
+                            Province_State: ""
+                        });
+                        break;
+                    default:
+                        records.push(record);
+                        break;
+                }
+                break;
+            case "Hong Kong":
+            case "Macau":
+            case "Taiwan":
+                records.push({
+                    ...record,
+                    Province_State: ""
+                });
+                break;
+            default:
+                records.push(record);
+                break;
+        }
     }
     return records;
 }
