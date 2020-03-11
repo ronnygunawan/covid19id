@@ -50,6 +50,8 @@ const normalizeName = (name: string): string => {
         return "Diamond Princess";
     } else if (name === "Mainland China") {
         return "China";
+    } else if (name === "Democratic Republic of the Congo") {
+        return "Congo";
     } else if (name === "Republic of Korea") {
         return "South Korea"
     } else if (name === "Hong Kong SAR") {
