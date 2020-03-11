@@ -39,7 +39,7 @@ const normalizeName = (name: string): string => {
     if (!name) {
         return name;
     } else if (name === '"Diamond Princess" cruise ship') {
-        return "Diamond Princess cruise ship";
+        return "Diamond Princess";
     } else if (name === "Grand Princess Cruise Ship") {
         return "Grand Princess";
     } else if (name.endsWith("(From Diamond Princess)")) {
