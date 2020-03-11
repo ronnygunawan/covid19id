@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 
-export type Mode = "Kumulatif" | "Belum Sembuh" | "Kasus Baru";
+export type Mode = "Kumulatif" | "Belum Sembuh" | "Kasus Baru" | "CFR1" | "CFR2";
 
 interface Props {
     mode: Mode;
