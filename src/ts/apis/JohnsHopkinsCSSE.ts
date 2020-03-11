@@ -66,6 +66,12 @@ const normalizeCountryName = (name: string): string => {
 const normalizeProvinceName = (name: string): string => {
     if (name === '"Diamond Princess" cruise ship') {
         return "Diamond Princess cruise ship";
+    } else if (name === "Hong Kong SAR") {
+        return "Hong Kong";
+    } else if (name === "Macao SAR") {
+        return "Macau";
+    } else if (name === "Taipei and environs") {
+        return "Taiwan";
     } else {
         return name;
     }
