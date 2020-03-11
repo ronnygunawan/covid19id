@@ -38,21 +38,18 @@ interface CsvModel {
 const normalizeName = (name: string): string => {
     if (!name) {
         return name;
-    } else if (name === '"Diamond Princess" cruise ship') {
-        return "Diamond Princess";
-    } else if (name === "Diamond Princess cruise ship") {
-        return "Diamond Princess";
-    } else if (name === "Grand Princess Cruise Ship") {
-        return "Grand Princess";
-    } else if (name === "From Diamond Princess") {
-        return "Diamond Princess";
-    } else if (name.endsWith("(From Diamond Princess)")) {
+    } else if (name === '"Diamond Princess" cruise ship'
+        || name === "Diamond Princess cruise ship"
+        || name === "From Diamond Princess"
+        || name.endsWith("(From Diamond Princess)")) {
         return "Diamond Princess";
     } else if (name === "Mainland China") {
         return "China";
-    } else if (name === "Democratic Republic of the Congo") {
+    } else if (name === "Democratic Republic of the Congo"
+        || name === "Congo (Kinshasa)") {
         return "Congo";
-    } else if (name === "Republic of Korea") {
+    } else if (name === "Republic of Korea"
+        || name === "Korea, South") {
         return "South Korea"
     } else if (name === "Hong Kong SAR") {
         return "Hong Kong";
@@ -68,7 +65,8 @@ const normalizeName = (name: string): string => {
         return "Russia";
     } else if (name === "Saint Martin") {
         return "St. Martin";
-    } else if (name === "Taipei and environs") {
+    } else if (name === "Taipei and environs"
+        || name === "Taiwan*") {
         return "Taiwan";
     } else if (name === "Viet Nam") {
         return "Vietnam";
