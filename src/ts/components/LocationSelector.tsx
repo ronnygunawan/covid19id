@@ -6,7 +6,7 @@ interface Props {
     onChange: (province: string | null, country: string | null) => void;
 }
 
-export const countryShortlist = ["Indonesia", "Singapore", "Malaysia", "Mainland China", "South Korea", "Iran", "Italy", "France", "Germany", "Spain", "Japan", "US"];
+export const countryShortlist = ["Indonesia", "Singapore", "Malaysia", "China", "South Korea", "Iran", "Italy", "France", "Germany", "Spain", "Japan", "US"];
 
 export const LocationSelector = ({
     onChange

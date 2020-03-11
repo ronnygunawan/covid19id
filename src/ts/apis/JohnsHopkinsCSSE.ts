@@ -36,7 +36,9 @@ interface CsvModel {
 }
 
 const normalizeCountryName = (name: string): string => {
-    if (name === "Republic of Korea") {
+    if (name === "Mainland China") {
+        return "China";
+    } else if (name === "Republic of Korea") {
         return "South Korea"
     } else if (name === "Hong Kong SAR") {
         return "Hong Kong";
@@ -105,7 +107,7 @@ function parseCsv(csv: string): CsvModel[] {
         }
         const record: CsvModel = {
             Province_State: province_state,
-            Country_Region: country_region,
+            Country_Region: normalizeCountryName(country_region),
             Lat: parseFloat(lat),
             Long: parseFloat(long),
             TimeSeries: dates.map((date, i) => {
