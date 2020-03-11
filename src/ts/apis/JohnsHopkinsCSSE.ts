@@ -44,6 +44,8 @@ const normalizeName = (name: string): string => {
         return "Diamond Princess";
     } else if (name === "Grand Princess Cruise Ship") {
         return "Grand Princess";
+    } else if (name === "From Diamond Princess") {
+        return "Diamond Princess";
     } else if (name.endsWith("(From Diamond Princess)")) {
         return "Diamond Princess";
     } else if (name === "Mainland China") {
@@ -134,7 +136,7 @@ function parseCsv(csv: string): CsvModel[] {
                 province_state = "Diamond Princess";
             } else {
                 const [city, state_code] = city_province_state.split(", ");
-                province_state = USStates[state_code];
+                province_state = state_code ? USStates[state_code] : city;
             }
         }
         province_state = normalizeName(province_state);
