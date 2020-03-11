@@ -37,7 +37,7 @@ export const LocationSelector = ({
         : null;
 
     const outsideChinaConfirmed = countries !== null
-        ? countries.filter(([name]) => name !== "Mainland China").reduce<number>((agg, cur) => {
+        ? countries.filter(([name]) => name !== "China").reduce<number>((agg, cur) => {
             const [name, confirmed] = cur;
             return agg + confirmed;
         }, 0)

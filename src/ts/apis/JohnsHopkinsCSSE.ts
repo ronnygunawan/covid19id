@@ -255,7 +255,7 @@ export async function getStatistics(province_state: string | null, country_regio
         }
     } else if (country_region === "DI LUAR CHINA") {
         if (allStatistics.length > 0) {
-            return allStatistics.filter(s => s.Country_Region !== "Mainland China").reduce<CombinedStatistics>((prev, cur) => {
+            return allStatistics.filter(s => s.Country_Region !== "China").reduce<CombinedStatistics>((prev, cur) => {
                 for (const ct of cur.TimeSeries) {
                     const pt = prev.TimeSeries.find(pt => pt.Date === ct.Date);
                     if (pt !== undefined) {
