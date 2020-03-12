@@ -194,7 +194,7 @@ export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
     const deathCases = parseCsv(await deathCasesResponse.text());
     const recoveredCasesResponse = await fetch(recoveredCasesUrl);
     const recoveredCases = parseCsv(await recoveredCasesResponse.text());
-    return confirmedCases.map((cc): CombinedStatistics => ({
+    const result = confirmedCases.map((cc): CombinedStatistics => ({
         ...cc,
         Province_State: cc.Province_State === "" ? null : cc.Province_State,
         TimeSeries: cc.TimeSeries.map(c => {
@@ -217,6 +217,22 @@ export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
             };
         })
     }));
+    // trim end
+    for (const provinceResult of result) {
+        if (provinceResult.TimeSeries.length > 2) {
+            const last = provinceResult.TimeSeries[provinceResult.TimeSeries.length - 1];
+            const beforeLast = provinceResult.TimeSeries[provinceResult.TimeSeries.length - 2];
+            if (last.Confirmed === 0
+                && last.Deaths === 0
+                && last.Recovered === 0
+                && (beforeLast.Confirmed !== 0
+                    || beforeLast.Deaths !== 0
+                    || beforeLast.Recovered !== 0)) {
+                provinceResult.TimeSeries.pop();
+            }
+        }
+    }
+    return result;
 }
 
 async function getAllStatistics(): Promise<CombinedStatistics[]> {
