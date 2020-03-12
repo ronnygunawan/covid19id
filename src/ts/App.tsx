@@ -19,6 +19,7 @@ export const App = () => {
     const [mode, setMode] = React.useState<Mode>("Kumulatif");
     const [scale, setScale] = React.useState<Scale>("linear");
     const [cfrDelay, setCfrDelay] = React.useState<number>(0);
+    const [realtimeStatisticsLoaded, setRealtimeStatisticsLoaded] = React.useState<boolean | null>(null);
 
     (window as any).cfr1 = function (delay: number) {
         setMode("CFR1");
@@ -56,7 +57,7 @@ export const App = () => {
                     if (country === "Indonesia") {
                         SuspectDeathsCSV.getSuspectDeaths().then(setSuspectDeaths);
                     }
-                }} />
+                }} setRealtimeStatisticsLoaded={setRealtimeStatisticsLoaded} />
             </div>
             <div className="col-auto">
                 <ModeSelector
@@ -74,5 +75,7 @@ export const App = () => {
             scale={scale}
             keyEvents={keyEvents}
             suspectDeaths={suspectDeaths} />
+        {realtimeStatisticsLoaded === false &&
+            <div className="notice">Data terbaru sedang tidak tersedia</div>}
     </>;
 };

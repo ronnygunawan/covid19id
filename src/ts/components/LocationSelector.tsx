@@ -4,12 +4,14 @@ import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap
 
 interface Props {
     onChange: (province: string | null, country: string | null) => void;
+    setRealtimeStatisticsLoaded: (loaded: boolean) => void;
 }
 
 export const countryShortlist = ["Indonesia", "Singapore", "Malaysia", "China", "South Korea", "Iran", "Italy", "France", "Germany", "Spain", "Japan", "US"];
 
 export const LocationSelector = ({
-    onChange
+    onChange,
+    setRealtimeStatisticsLoaded
 }: Props) => {
     const [country, setCountry] = React.useState<string | null>("Indonesia");
     const [province, setProvince] = React.useState<string | null>(null);
@@ -18,7 +20,10 @@ export const LocationSelector = ({
     const [dropdownState, setDropdownState] = React.useState<"country" | "province" | null>(null);
 
     React.useEffect(() => {
-        JohnsHopkinsCSSE.getCountries().then(setCountries);
+        JohnsHopkinsCSSE.getCountries().then(([countries, realtimeStatisticsLoaded]) => {
+            setCountries(countries);
+            setRealtimeStatisticsLoaded(realtimeStatisticsLoaded);
+        });
         onChange(province, country);
     }, []);
 
