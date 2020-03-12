@@ -228,7 +228,12 @@ export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
                 && (beforeLast.Confirmed !== 0
                     || beforeLast.Deaths !== 0
                     || beforeLast.Recovered !== 0)) {
-                provinceResult.TimeSeries.pop();
+                for (const provinceResult of result) {
+                    if (provinceResult.TimeSeries.length > 1) {
+                        provinceResult.TimeSeries.pop();
+                    }
+                }
+                break;
             }
         }
     }
