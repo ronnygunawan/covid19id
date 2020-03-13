@@ -76,6 +76,6 @@ export const App = () => {
             keyEvents={keyEvents}
             suspectDeaths={suspectDeaths} />
         {realtimeStatisticsLoaded === false &&
-            <div className="notice">Data terbaru sedang tidak tersedia</div>}
+            <div className="notice">Data terbaru tidak tersedia. Cobalah pakai incognito.</div>}
     </>;
 };
