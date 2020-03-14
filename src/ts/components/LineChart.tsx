@@ -5,22 +5,29 @@ import { KeyEvent } from "../models/KeyEvent";
 import { SuspectDeath } from "../models/SuspectDeath";
 
 interface Props {
+    country: string | null;
     data: Serie[];
     scale: "linear" | "log",
     keyEvents: KeyEvent[] | null;
     suspectDeaths: SuspectDeath[] | null;
 }
 
-const daysOfWeek = ["MINGGU", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "SABTU"];
+const daysOfWeek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 export const LineChart = ({
+    country,
     data,
     scale,
     keyEvents,
     suspectDeaths
 }: Props) => {
     const markers: CartesianMarkerProps[] = keyEvents !== null && data.length >= 1
-        ? keyEvents.map((keyEvent): CartesianMarkerProps => ({
+        ? keyEvents.filter(keyEvent => {
+            if (country !== "Indonesia") return true;
+            const [m, d, y] = keyEvent.date.split("/");
+            const date = new Date(parseInt(y) + 2000, parseInt(m) - 1, parseInt(d));
+            return date.getTime() >= new Date(2020, 2, 1).getTime();
+        }).map((keyEvent): CartesianMarkerProps => ({
             axis: "x",
             value: data[0].data.find(d => d.x === keyEvent.date) ? keyEvent.date : "TODAY",
             legend: keyEvent.marker,
@@ -32,43 +39,43 @@ export const LineChart = ({
             }
         }))
         : [];
-    if (suspectDeaths !== null && data.length >= 1) {
-        const hospitalsByDate = suspectDeaths.reduce<{ [date: string]: string[] }>((agg, cur) => {
-            if (cur.status === "Positive") return agg;
-            const hospitalAndStatus = cur.status === "Negative"
-                ? `${cur.hospital} (Negatif COVID-19)`
-                : cur.hospital;
-            if (agg[cur.date]) {
-                agg[cur.date].push(hospitalAndStatus);
-            } else {
-                agg[cur.date] = [hospitalAndStatus];
-            }
-            return agg;
-        }, {});
-        for (const date in hospitalsByDate) {
-            const hospitals = hospitalsByDate[date];
-            const legend = hospitals.length === 1
-                ? `Kematian suspect di ${hospitals[0]}`
-                : hospitals.length === 2
-                    ? `Kematian suspect di ${hospitals[0]} dan ${hospitals[1]}`
-                    : `Kematian ${hospitals.length} orang suspect`
-            markers.push({
-                axis: "x",
-                value: data[0].data.find(d => d.x === date) ? date : "TODAY",
-                legend: legend,
-                textStyle: {
-                    fontSize: 10,
-                    letterSpacing: 0.6,
-                    transform: date === "3/6/20"
-                        ? "rotate(-90deg) translate(-100vh, 0) translate(300px, -10px)"
-                        : "rotate(-90deg) translate(-100vh, 0) translate(130px, -10px)"
-                },
-                lineStyle: {
-                    stroke: "rgba(255, 0, 0, 0.5)"
-                }
-            });
-        }
-    }
+    // if (suspectDeaths !== null && data.length >= 1) {
+    //     const hospitalsByDate = suspectDeaths.reduce<{ [date: string]: string[] }>((agg, cur) => {
+    //         if (cur.status === "Positive") return agg;
+    //         const hospitalAndStatus = cur.status === "Negative"
+    //             ? `${cur.hospital} (Negatif COVID-19)`
+    //             : cur.hospital;
+    //         if (agg[cur.date]) {
+    //             agg[cur.date].push(hospitalAndStatus);
+    //         } else {
+    //             agg[cur.date] = [hospitalAndStatus];
+    //         }
+    //         return agg;
+    //     }, {});
+    //     for (const date in hospitalsByDate) {
+    //         const hospitals = hospitalsByDate[date];
+    //         const legend = hospitals.length === 1
+    //             ? `Kematian suspect di ${hospitals[0]}`
+    //             : hospitals.length === 2
+    //                 ? `Kematian suspect di ${hospitals[0]} dan ${hospitals[1]}`
+    //                 : `Kematian ${hospitals.length} orang suspect`
+    //         markers.push({
+    //             axis: "x",
+    //             value: data[0].data.find(d => d.x === date) ? date : "TODAY",
+    //             legend: legend,
+    //             textStyle: {
+    //                 fontSize: 10,
+    //                 letterSpacing: 0.6,
+    //                 transform: date === "3/6/20"
+    //                     ? "rotate(-90deg) translate(-100vh, 0) translate(300px, -10px)"
+    //                     : "rotate(-90deg) translate(-100vh, 0) translate(130px, -10px)"
+    //             },
+    //             lineStyle: {
+    //                 stroke: "rgba(255, 0, 0, 0.5)"
+    //             }
+    //         });
+    //     }
+    // }
 
     if (scale === "log") {
         for (const serie of data) {

@@ -71,6 +71,7 @@ export const App = () => {
             </div>
         </div>
         <LineChart
+            country={statistics?.Country_Region || null}
             data={data}
             scale={scale}
             keyEvents={keyEvents}
