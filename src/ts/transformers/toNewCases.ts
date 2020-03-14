@@ -1,5 +1,6 @@
 import { Datum } from "@nivo/line";
 import { CombinedStatistics } from "../models/CombinedStatistics";
+import { View } from "../components/ViewSelector";
 
 interface DailyStatistics {
     Date: string;
@@ -72,7 +73,7 @@ const toIndonesiaNewCases = (statistics: CombinedStatistics) => {
     return result;
 };
 
-export const toNewCases = (statistics: CombinedStatistics) => statistics.Country_Region === "Indonesia"
+export const toNewCases = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
     ? toIndonesiaNewCases(statistics)
     : [
         {

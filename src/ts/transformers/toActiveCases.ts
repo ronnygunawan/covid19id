@@ -1,4 +1,5 @@
 import { CombinedStatistics } from "../models/CombinedStatistics";
+import { View } from "../components/ViewSelector";
 
 const toIndonesiaActiveCases = (statistics: CombinedStatistics) => {
     const result: {
@@ -65,7 +66,7 @@ const toIndonesiaActiveCases = (statistics: CombinedStatistics) => {
     return result;
 };
 
-export const toActiveCases = (statistics: CombinedStatistics) => statistics.Country_Region === "Indonesia"
+export const toActiveCases = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
     ? toIndonesiaActiveCases(statistics)
     : [
         {

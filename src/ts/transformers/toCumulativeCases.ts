@@ -1,4 +1,5 @@
 import { CombinedStatistics } from "../models/CombinedStatistics";
+import { View } from "../components/ViewSelector";
 
 const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
     const result: {
@@ -65,7 +66,7 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
     return result;
 };
 
-export const toCumulativeCases = (statistics: CombinedStatistics) => statistics.Country_Region === "Indonesia"
+export const toCumulativeCases = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
     ? toIndonesiaCumulativeCases(statistics)
     : [
         {

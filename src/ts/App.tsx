@@ -7,6 +7,7 @@ import * as JohnsHopkinsCSSE from "./apis/JohnsHopkinsCSSE";
 import * as KeyEventsCSV from "./apis/KeyEventsCSV";
 import * as SuspectDeathsCSV from "./apis/SuspectDeathsCSV";
 import { LocationSelector } from "./components/LocationSelector";
+import { ViewSelector, View } from "./components/ViewSelector";
 import { ModeSelector, Mode } from "./components/ModeSelector";
 import { ScaleSelector, Scale } from "./components/ScaleSelector";
 import { LineChart } from "./components/LineChart";
@@ -16,6 +17,8 @@ export const App = () => {
     const [statistics, setStatistics] = React.useState<CombinedStatistics | null>(null);
     const [keyEvents, setKeyEvents] = React.useState<KeyEvent[] | null>(null);
     const [suspectDeaths, setSuspectDeaths] = React.useState<SuspectDeath[] | null>(null);
+    const [showViewSelector, setShowViewSelector] = React.useState<boolean>(false);
+    const [view, setView] = React.useState<View>("normal");
     const [mode, setMode] = React.useState<Mode>("Kumulatif");
     const [scale, setScale] = React.useState<Scale>("linear");
     const [cfrDelay, setCfrDelay] = React.useState<number>(0);
@@ -33,11 +36,11 @@ export const App = () => {
 
     const data: Serie[] = statistics !== null
         ? mode === "Kumulatif"
-            ? toCumulativeCases(statistics)
+            ? toCumulativeCases(statistics, view)
             : mode === "Belum Sembuh"
-                ? toActiveCases(statistics)
+                ? toActiveCases(statistics, view)
                 : mode === "Kasus Baru"
-                    ? toNewCases(statistics)
+                    ? toNewCases(statistics, view)
                     : mode === "CFR1"
                         ? toCFR1(statistics, cfrDelay)
                         : mode === "CFR2"
@@ -47,18 +50,30 @@ export const App = () => {
 
     return <>
         <div className="row">
-            <div className="col">
+            <div className="col-auto">
                 <LocationSelector onChange={(province, country) => {
                     setStatistics(null);
                     setKeyEvents(null);
                     setSuspectDeaths(null);
+                    setShowViewSelector(false);
+                    setView("normal");
                     JohnsHopkinsCSSE.getStatistics(province, country).then(setStatistics);
                     KeyEventsCSV.getKeyEvents(country).then(setKeyEvents);
                     if (country === "Indonesia") {
                         SuspectDeathsCSV.getSuspectDeaths().then(setSuspectDeaths);
+                        setShowViewSelector(true);
+                        setView("mudik");
                     }
                 }} setRealtimeStatisticsLoaded={setRealtimeStatisticsLoaded} />
             </div>
+            <div className="col-auto">
+                {showViewSelector &&
+                    <ViewSelector
+                        view={view}
+                        onChange={setView} />
+                }
+            </div>
+            <div className="col"></div>
             <div className="col-auto">
                 <ModeSelector
                     mode={mode}
@@ -72,6 +87,7 @@ export const App = () => {
         </div>
         <LineChart
             country={statistics?.Country_Region || null}
+            view={view}
             data={data}
             scale={scale}
             keyEvents={keyEvents}
