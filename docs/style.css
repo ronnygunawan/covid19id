@@ -84,6 +84,12 @@
   bottom: 0;
   z-index: 0;
 }
+#countdown-mudik {
+  padding: 26px 15px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #800;
+}
 .notice {
   position: fixed;
   top: 20px;

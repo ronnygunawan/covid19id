@@ -11,6 +11,7 @@ import { ViewSelector, View } from "./components/ViewSelector";
 import { ModeSelector, Mode } from "./components/ModeSelector";
 import { ScaleSelector, Scale } from "./components/ScaleSelector";
 import { LineChart } from "./components/LineChart";
+import { CountdownMudik } from "./components/CountdownMudik";
 import { toCumulativeCases, toActiveCases, toNewCases, toCFR1, toCFR2 } from "./transformers";
 
 export const App = () => {
@@ -73,7 +74,11 @@ export const App = () => {
                         onChange={setView} />
                 }
             </div>
-            <div className="col"></div>
+            <div className="col">
+                {view === "mudik" &&
+                    <CountdownMudik />
+                }
+            </div>
             <div className="col-auto">
                 <ModeSelector
                     mode={mode}

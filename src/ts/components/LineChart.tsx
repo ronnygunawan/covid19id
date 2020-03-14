@@ -184,7 +184,7 @@ export const LineChart = ({
                         const top = yScale(Math.max(max, 1000));
                         const bottom = yScale(0);
                         return <>
-                            <path d={`M${left},${bottom} ${left},${top} ${right},${top} ${right},${bottom}Z`} fill="rgba(128, 0, 0, 0.5)" />
+                            <path d={`M${left},${bottom} ${left},${top} ${right},${top} ${right},${bottom}Z`} fill="rgba(255, 0, 0, 0.2)" />
                             <text x={left} y={top - 4} fill="rgba(128, 0, 0, 1)" fontSize="13">ARUS MUDIK</text>
                         </>;
                     },
