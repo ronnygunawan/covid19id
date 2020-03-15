@@ -3,77 +3,56 @@ import { ResponsiveLine, Serie } from "@nivo/line";
 import { CartesianMarkerProps } from "@nivo/core"
 import { KeyEvent } from "../models/KeyEvent";
 import { SuspectDeath } from "../models/SuspectDeath";
+import { View } from "./ViewSelector";
 
 interface Props {
+    country: string | null;
+    view: View;
     data: Serie[];
     scale: "linear" | "log",
     keyEvents: KeyEvent[] | null;
     suspectDeaths: SuspectDeath[] | null;
 }
 
-const daysOfWeek = ["MINGGU", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "SABTU"];
+const daysOfWeek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 export const LineChart = ({
+    country,
+    view,
     data,
     scale,
     keyEvents,
     suspectDeaths
 }: Props) => {
     const markers: CartesianMarkerProps[] = keyEvents !== null && data.length >= 1
-        ? keyEvents.map((keyEvent): CartesianMarkerProps => ({
+        ? keyEvents.filter(keyEvent => {
+            const [m, d, y] = keyEvent.date.split("/");
+            const date = new Date(parseInt(y) + 2000, parseInt(m) - 1, parseInt(d));
+            if (country !== "Indonesia" || view !== "mudik") {
+                return date.getTime() < Date.now();
+            } else {
+                return date.getTime() >= new Date(2020, 2, 1).getTime();
+            }
+        }).map((keyEvent): CartesianMarkerProps => ({
             axis: "x",
             value: data[0].data.find(d => d.x === keyEvent.date) ? keyEvent.date : "TODAY",
             legend: keyEvent.marker,
             textStyle: {
                 fontSize: 10,
                 fontWeight: "bold",
-                letterSpacing: 0.6,
-                transform: "rotate(-90deg) translate(-100vh, 0) translate(130px, -10px)"
+                letterSpacing: 0.4,
+                transform: "rotate(-90deg) translate(-100vh, 0) translate(200px, -7px)"
+            },
+            lineStyle: {
+                stroke: "rgba(0, 0, 0, 0.4)"
             }
         }))
         : [];
-    if (suspectDeaths !== null && data.length >= 1) {
-        const hospitalsByDate = suspectDeaths.reduce<{ [date: string]: string[] }>((agg, cur) => {
-            if (cur.status === "Positive") return agg;
-            const hospitalAndStatus = cur.status === "Negative"
-                ? `${cur.hospital} (Negatif COVID-19)`
-                : cur.hospital;
-            if (agg[cur.date]) {
-                agg[cur.date].push(hospitalAndStatus);
-            } else {
-                agg[cur.date] = [hospitalAndStatus];
-            }
-            return agg;
-        }, {});
-        for (const date in hospitalsByDate) {
-            const hospitals = hospitalsByDate[date];
-            const legend = hospitals.length === 1
-                ? `Kematian suspect di ${hospitals[0]}`
-                : hospitals.length === 2
-                    ? `Kematian suspect di ${hospitals[0]} dan ${hospitals[1]}`
-                    : `Kematian ${hospitals.length} orang suspect`
-            markers.push({
-                axis: "x",
-                value: data[0].data.find(d => d.x === date) ? date : "TODAY",
-                legend: legend,
-                textStyle: {
-                    fontSize: 10,
-                    letterSpacing: 0.6,
-                    transform: date === "3/6/20"
-                        ? "rotate(-90deg) translate(-100vh, 0) translate(300px, -10px)"
-                        : "rotate(-90deg) translate(-100vh, 0) translate(130px, -10px)"
-                },
-                lineStyle: {
-                    stroke: "rgba(255, 0, 0, 0.5)"
-                }
-            });
-        }
-    }
 
     if (scale === "log") {
         for (const serie of data) {
             for (let i = 0; i < serie.data.length; i++) {
-                if (serie.data[i].y !<= 0) {
+                if (serie.data[i].y! <= 0) {
                     serie.data[i] = {
                         x: serie.data[i].x,
                         y: 0.00000000000000000000000000000000000000000001
@@ -113,11 +92,19 @@ export const LineChart = ({
                     ? max > 0
                         ? max * 2
                         : 2
-                    : "auto",
+                    : country === "Indonesia" && view === "mudik"
+                        ? Math.max(max, 1000)
+                        : "auto",
                 stacked: false,
                 base: 10
             }}
-            axisTop={{
+            gridXValues={data[0]?.data.map(d => d.x as string).filter(x => {
+                if (x === "TODAY") return true;
+                const [m, d, y] = x.split("/");
+                const date = new Date(parseInt(y) + 2000, parseInt(m) - 1, parseInt(d));
+                return date.getDay() === 0;
+            }) || []}
+            axisTop={null/*{
                 orient: "top",
                 tickSize: 5,
                 tickPadding: 5,
@@ -129,7 +116,7 @@ export const LineChart = ({
                     const date = new Date(value);
                     return daysOfWeek[date.getDay()];
                 }
-            }}
+            }*/}
             axisRight={null}
             axisBottom={{
                 orient: "bottom",
@@ -137,7 +124,13 @@ export const LineChart = ({
                 tickPadding: 5,
                 tickRotation: -60,
                 legendOffset: 36,
-                legendPosition: "middle"
+                legendPosition: "middle",
+                format: (x: string): string => {
+                    if (x === "TODAY") return x;
+                    const [m, d, y] = x.split("/");
+                    const date = new Date(parseInt(y) + 2000, parseInt(m) - 1, parseInt(d));
+                    return date.getDay() === 0 ? x : "";
+                }
             }}
             axisLeft={{
                 orient: "left",
@@ -183,6 +176,28 @@ export const LineChart = ({
                     ]
                 }
             ]}
-            markers={markers} />
+            markers={markers}
+            animate={false}
+            layers={country === "Indonesia" && view === "mudik"
+                ? [
+                    "grid",
+                    "axes",
+                    ({ xScale, yScale }) => {
+                        const left = xScale("5/21/20");
+                        const right = xScale("5/27/20");
+                        const top = yScale(Math.max(max, 1000));
+                        const bottom = yScale(0);
+                        return <>
+                            <path d={`M${left},${bottom} ${left},${top} ${right},${top} ${right},${bottom}Z`} fill="rgba(255, 0, 0, 0.2)" />
+                            <text x={left} y={top - 4} fill="rgba(128, 0, 0, 1)" fontSize="13">ARUS MUDIK</text>
+                        </>;
+                    },
+                    "areas",
+                    "lines",
+                    "markers",
+                    "mesh",
+                    "legends"
+                ]
+                : undefined} />
     </div>
 }

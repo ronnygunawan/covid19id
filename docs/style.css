@@ -7,7 +7,7 @@
 }
 #location-selector {
   position: relative;
-  padding: 20px 60px 20px 80px;
+  padding: 20px 0 20px 80px;
   z-index: 1;
 }
 #location-selector .dropdown {
@@ -20,6 +20,23 @@
   border-color: #cccccc;
 }
 #location-selector .dropdown-menu {
+  width: 220px;
+  max-height: 500px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+#view-selector {
+  position: relative;
+  padding: 20px 0;
+  z-index: 1;
+}
+#view-selector .dropdown-toggle {
+  font-size: 13px;
+  background: #ffffff;
+  color: #333333;
+  border-color: #cccccc;
+}
+#view-selector .dropdown-menu {
   width: 220px;
   max-height: 500px;
   overflow-y: auto;
@@ -60,10 +77,29 @@
   font-size: 13px;
 }
 #chart {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  height: 100%;
   z-index: 0;
+}
+#countdown-mudik {
+  padding: 26px 15px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #800;
+}
+.notice {
+  position: absolute;
+  top: 20px;
+  width: 400px;
+  left: 50%;
+  margin-left: -200px;
+  font-size: 13px;
+  text-align: center;
+  padding: 6px 12px;
+  border: solid 1px #800;
+  background: #fff0f0;
+  border-radius: 4px;
 }
