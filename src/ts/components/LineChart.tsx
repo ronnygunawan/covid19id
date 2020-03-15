@@ -26,10 +26,13 @@ export const LineChart = ({
 }: Props) => {
     const markers: CartesianMarkerProps[] = keyEvents !== null && data.length >= 1
         ? keyEvents.filter(keyEvent => {
-            if (country !== "Indonesia" || view !== "mudik") return true;
             const [m, d, y] = keyEvent.date.split("/");
             const date = new Date(parseInt(y) + 2000, parseInt(m) - 1, parseInt(d));
-            return date.getTime() >= new Date(2020, 2, 1).getTime();
+            if (country !== "Indonesia" || view !== "mudik") {
+                return date.getTime() < Date.now();
+            } else {
+                return date.getTime() >= new Date(2020, 2, 1).getTime();
+            }
         }).map((keyEvent): CartesianMarkerProps => ({
             axis: "x",
             value: data[0].data.find(d => d.x === keyEvent.date) ? keyEvent.date : "TODAY",
