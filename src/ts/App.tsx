@@ -4,6 +4,7 @@ import { CombinedStatistics } from "./models/CombinedStatistics";
 import { KeyEvent } from "./models/KeyEvent";
 import { SuspectDeath } from "./models/SuspectDeath";
 import * as JohnsHopkinsCSSE from "./apis/JohnsHopkinsCSSE";
+import * as Kawalcovid19id from "./apis/Kawalcovid19id";
 import * as KeyEventsCSV from "./apis/KeyEventsCSV";
 import * as SuspectDeathsCSV from "./apis/SuspectDeathsCSV";
 import { LocationSelector } from "./components/LocationSelector";
@@ -58,7 +59,23 @@ export const App = () => {
                     setSuspectDeaths(null);
                     setShowViewSelector(false);
                     setView("normal");
-                    JohnsHopkinsCSSE.getStatistics(province, country).then(setStatistics);
+                    JohnsHopkinsCSSE.getStatistics(province, country).then(statistics => {
+                        if (country === "Indonesia") {
+                            if (statistics !== null && statistics.TimeSeries.length > 0) {
+                                Kawalcovid19id.getStatistics().then(kcovidStatistics => {
+                                    if (kcovidStatistics !== null && kcovidStatistics.TimeSeries.length === 1) {
+                                        const stat = {...statistics};
+                                        stat.TimeSeries[stat.TimeSeries.length - 1] = kcovidStatistics.TimeSeries[0];
+                                        setStatistics(stat);
+                                    } else {
+                                        setStatistics(statistics);
+                                    }
+                                });
+                                return;
+                            }
+                        }
+                        setStatistics(statistics);
+                    });
                     KeyEventsCSV.getKeyEvents(country).then(setKeyEvents);
                     if (country === "Indonesia") {
                         SuspectDeathsCSV.getSuspectDeaths().then(setSuspectDeaths);
