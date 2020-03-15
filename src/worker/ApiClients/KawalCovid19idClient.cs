@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,7 +54,7 @@ namespace Covid19id.ApiClients {
 						&& columns[13] is string N && int.TryParse(N, out int negatives)
 						&& columns[14] is string O && int.TryParse(O, out int observing)) {
 						return new DailyStatistics(
-							date: date.Value,
+							date: date.Value.ToString("M/d/yy", CultureInfo.InvariantCulture),
 							newCases: newCases,
 							cases: cases,
 							activeCases: activeCases,

@@ -213,7 +213,9 @@ export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
                 Date: c.Date,
                 Confirmed: confirmed,
                 Deaths: deaths,
-                Recovered: recovered
+                Recovered: recovered,
+                Observed: null,
+                Negatives: null
             };
         })
     }));
@@ -260,7 +262,9 @@ async function getAllStatistics(): Promise<[CombinedStatistics[], boolean]> {
                         Date: "TODAY",
                         Confirmed: rs.Confirmed,
                         Deaths: rs.Deaths,
-                        Recovered: rs.Recovered
+                        Recovered: rs.Recovered,
+                        Observed: null,
+                        Negatives: null
                     }
                 ]
             };
@@ -337,7 +341,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Date: t.Date,
                     Confirmed: 0,
                     Deaths: 0,
-                    Recovered: 0
+                    Recovered: 0,
+                    Observed: null,
+                    Negatives: null
                 }))
             });
         } else {
@@ -364,7 +370,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Date: t.Date,
                     Confirmed: 0,
                     Deaths: 0,
-                    Recovered: 0
+                    Recovered: 0,
+                    Observed: null,
+                    Negatives: null
                 }))
             });
         } else {
@@ -389,7 +397,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Date: t.Date,
                     Confirmed: 0,
                     Deaths: 0,
-                    Recovered: 0
+                    Recovered: 0,
+                    Observed: null,
+                    Negatives: null
                 }))
             });
         } else {

@@ -22,7 +22,7 @@ namespace Covid19id.ApiCaches {
 
 		public async Task<ImmutableList<DailyStatistics>> GetDailyStatisticsAsync(CancellationToken cancellationToken) {
 			return await _memoryCache.GetOrCreateAsync("KawalCovid19idDailyStatistics", async entry => {
-				entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(10);
+				entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
 				return await _client.GetDailyStatisticsAsync(cancellationToken).ConfigureAwait(false);
 			}).ConfigureAwait(false);
 		}

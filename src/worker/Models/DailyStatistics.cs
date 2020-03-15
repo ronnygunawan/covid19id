@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Covid19id.Models {
+﻿namespace Covid19id.Models {
 	public class DailyStatistics {
-		public DateTime Date { get; }
+		public string Date { get; }
 		public int NewCases { get; }
 		public int Cases { get; }
 		public int ActiveCases { get; }
@@ -16,7 +14,7 @@ namespace Covid19id.Models {
 		public int Observing { get; }
 
 		public DailyStatistics(
-			DateTime date,
+			string date,
 			int newCases,
 			int cases,
 			int activeCases,
