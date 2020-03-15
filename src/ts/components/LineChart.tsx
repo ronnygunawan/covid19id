@@ -4,10 +4,12 @@ import { CartesianMarkerProps } from "@nivo/core"
 import { KeyEvent } from "../models/KeyEvent";
 import { SuspectDeath } from "../models/SuspectDeath";
 import { View } from "./ViewSelector";
+import { Mode } from "./ModeSelector";
 
 interface Props {
     country: string | null;
     view: View;
+    mode: Mode;
     data: Serie[];
     scale: "linear" | "log",
     keyEvents: KeyEvent[] | null;
@@ -19,6 +21,7 @@ const daysOfWeek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabt
 export const LineChart = ({
     country,
     view,
+    mode,
     data,
     scale,
     keyEvents,
@@ -76,6 +79,20 @@ export const LineChart = ({
         return prev;
     }, 0);
 
+    const yScaleMax: number | "auto" = scale === "log"
+        ? max > 0
+            ? max * 2
+            : 2
+        : country === "Indonesia"
+            ? mode === "Persentase Observasi Positif"
+                ? Math.max(max, 20)
+                : mode === "Case Fatality Rate (CFR)"
+                    ? Math.max(max, 10)
+                    : view === "mudik"
+                        ? Math.max(max, 250)
+                        : "auto"
+            : "auto";
+
     return <div id="chart">
         <ResponsiveLine
             data={data}
@@ -88,15 +105,9 @@ export const LineChart = ({
                     : scale === "log"
                         ? 1
                         : "auto",
-                max: scale === "log"
-                    ? max > 0
-                        ? max * 2
-                        : 2
-                    : country === "Indonesia" && view === "mudik"
-                        ? Math.max(max, 1000)
-                        : "auto",
+                max: yScaleMax,
                 stacked: false,
-                base: 10
+                base: 10,
             }}
             gridXValues={data[0]?.data.map(d => d.x as string).filter(x => {
                 if (x === "TODAY") return true;
@@ -148,6 +159,9 @@ export const LineChart = ({
             pointBorderColor={{ from: "serieColor" }}
             pointLabel="y"
             pointLabelYOffset={-12}
+            yFormat={(value: number) => mode === "Persentase Observasi Positif" || mode === "Case Fatality Rate (CFR)"
+                ? `${value.toFixed(1)}%`
+                : value}
             enableArea={scale === "linear"}
             useMesh={true}
             legends={[
@@ -185,7 +199,9 @@ export const LineChart = ({
                     ({ xScale, yScale }) => {
                         const left = xScale("5/21/20");
                         const right = xScale("5/27/20");
-                        const top = yScale(Math.max(max, 1000));
+                        const top = yScaleMax === "auto"
+                            ? yScale(max)
+                            : yScale(Math.max(max, yScaleMax));
                         const bottom = yScale(0);
                         return <>
                             <path d={`M${left},${bottom} ${left},${top} ${right},${top} ${right},${bottom}Z`} fill="rgba(255, 0, 0, 0.2)" />
