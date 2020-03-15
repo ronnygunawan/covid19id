@@ -3,12 +3,12 @@ import * as React from "react";
 const firstHoliday = new Date(2020, 4, 20, 16, 0, 0, 0);
 
 export const CountdownMudik = () => {
-    const [text, setText] = React.useState<string>("");
+    const divRef = React.useRef<HTMLDivElement | null>(null);
 
     React.useEffect(() => {
         const interval = window.setInterval(() => {
             const now = new Date();
-            if (now.getTime() < firstHoliday.getTime()) {
+            if (divRef.current !== null && now.getTime() < firstHoliday.getTime()) {
                 const totalSeconds = (firstHoliday.getTime() - now.getTime()) / 1000;
                 const seconds = Math.floor(totalSeconds % 60);
                 const minutes = Math.floor(totalSeconds / 60) % 60;
@@ -27,7 +27,7 @@ export const CountdownMudik = () => {
                 if (seconds > 0) {
                     texts.push(`${seconds} detik`);
                 }
-                setText(texts.join(" "));
+                divRef.current.innerText = texts.join(" ");
             }
         }, 200);
         return () => {
@@ -35,7 +35,5 @@ export const CountdownMudik = () => {
         };
     }, []);
 
-    return <div id="countdown-mudik">
-        {text}
-    </div>
+    return <div id="countdown-mudik" ref={el => divRef.current = el}></div>
 }

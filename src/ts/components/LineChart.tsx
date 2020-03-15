@@ -174,6 +174,7 @@ export const LineChart = ({
                 }
             ]}
             markers={markers}
+            animate={false}
             layers={country === "Indonesia" && view === "mudik"
                 ? [
                     "grid",
