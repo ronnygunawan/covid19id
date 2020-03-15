@@ -1,7 +1,7 @@
 import { CombinedStatistics } from "../models/CombinedStatistics";
 import { View } from "../components/ViewSelector";
 
-const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
+const toIndonesiaCaseFatalityRate = (statistics: CombinedStatistics) => {
     const result: {
         id: string,
         data: {
@@ -10,17 +10,9 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
         }[]
     }[] = [
             {
-                id: "Positif",
+                id: "CFR",
                 data: []
-            },
-            {
-                id: "Meninggal",
-                data: []
-            },
-            {
-                id: "Sembuh",
-                data: []
-            },
+            }
         ];
     let started = false;
     for (const t of statistics.TimeSeries) {
@@ -30,15 +22,7 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
         if (started) {
             result[0].data.push({
                 x: t.Date,
-                y: t.Confirmed
-            });
-            result[1].data.push({
-                x: t.Date,
-                y: t.Deaths
-            });
-            result[2].data.push({
-                x: t.Date,
-                y: t.Recovered
+                y: t.Confirmed > 0 ? t.Deaths / t.Confirmed * 100 : 0
             });
         }
     }
@@ -54,40 +38,18 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
             x: date,
             y: null
         });
-        result[1].data.push({
-            x: date,
-            y: null
-        });
-        result[2].data.push({
-            x: date,
-            y: null
-        });
     }
     return result;
 };
 
-export const toCumulativeCases = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
-    ? toIndonesiaCumulativeCases(statistics)
+export const toCaseFatalityRate = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
+    ? toIndonesiaCaseFatalityRate(statistics)
     : [
         {
-            id: "Positif",
+            id: "CFR",
             data: statistics.TimeSeries.map(t => ({
                 x: t.Date,
-                y: t.Confirmed
-            }))
-        },
-        {
-            id: "Meninggal",
-            data: statistics.TimeSeries.map(t => ({
-                x: t.Date,
-                y: t.Deaths
-            }))
-        },
-        {
-            id: "Sembuh",
-            data: statistics.TimeSeries.map(t => ({
-                x: t.Date,
-                y: t.Recovered
+                y: t.Confirmed > 0 ? t.Deaths / t.Confirmed * 100 : 0
             }))
         }
     ];

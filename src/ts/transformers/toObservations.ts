@@ -1,7 +1,7 @@
 import { CombinedStatistics } from "../models/CombinedStatistics";
 import { View } from "../components/ViewSelector";
 
-const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
+const toIndonesiaObservations = (statistics: CombinedStatistics) => {
     const result: {
         id: string,
         data: {
@@ -21,6 +21,14 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
                 id: "Sembuh",
                 data: []
             },
+            {
+                id: "Negatif",
+                data: []
+            },
+            {
+                id: "Diperiksa",
+                data: []
+            }
         ];
     let started = false;
     for (const t of statistics.TimeSeries) {
@@ -40,6 +48,18 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
                 x: t.Date,
                 y: t.Recovered
             });
+            if (t.Negatives !== null) {
+                result[3].data.push({
+                    x: t.Date,
+                    y: t.Negatives
+                });
+            }
+            if (t.Observed !== null) {
+                result[4].data.push({
+                    x: t.Date,
+                    y: t.Observed
+                });
+            }
         }
     }
     const [m, d, y] = statistics.TimeSeries[statistics.TimeSeries.length - 2].Date.split("/");
@@ -66,8 +86,8 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
     return result;
 };
 
-export const toCumulativeCases = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
-    ? toIndonesiaCumulativeCases(statistics)
+export const toObservations = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
+    ? toIndonesiaObservations(statistics)
     : [
         {
             id: "Positif",
@@ -88,6 +108,20 @@ export const toCumulativeCases = (statistics: CombinedStatistics, view: View) =>
             data: statistics.TimeSeries.map(t => ({
                 x: t.Date,
                 y: t.Recovered
+            }))
+        },
+        {
+            id: "Negatif",
+            data: statistics.TimeSeries.filter(t => t.Negatives !== null).map(t => ({
+                x: t.Date,
+                y: t.Negatives
+            }))
+        },
+        {
+            id: "Diperiksa",
+            data: statistics.TimeSeries.filter(t => t.Observed !== null).map(t => ({
+                x: t.Date,
+                y: t.Observed
             }))
         }
     ];

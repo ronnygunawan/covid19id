@@ -7,25 +7,31 @@ interface DailyStatistics {
     Confirmed: number;
     Deaths: number;
     Recovered: number;
+    Negatives: number | null;
+    Observed: number | null;
 }
 
-const mapDelta = (timeSeries: DailyStatistics[], selector: (x: DailyStatistics) => number): Datum[] => timeSeries.reduce<[Datum[], DailyStatistics | null]>((agg, cur) => {
+const mapDelta = (timeSeries: DailyStatistics[], selector: (x: DailyStatistics) => number | null): Datum[] => timeSeries.reduce<[Datum[], DailyStatistics | null]>((agg, cur) => {
     const [arr, prev] = agg;
-    if (prev === null) {
-        arr.push({
-            x: cur.Date,
-            y: selector(cur)
-        });
-    } else {
-        arr.push({
-            x: cur.Date,
-            y: selector(cur) - selector(prev)
-        });
+    const y = selector(cur);
+    if (y !== null) {
+        if (prev === null) {
+            arr.push({
+                x: cur.Date,
+                y: selector(cur)
+            });
+        } else {
+            const yPrev = selector(prev) || 0;
+            arr.push({
+                x: cur.Date,
+                y: y - yPrev
+            });
+        }
     }
     return [arr, cur];
 }, [[], null])[0];
 
-const toIndonesiaNewCases = (statistics: CombinedStatistics) => {
+const toIndonesiaDailyObservations = (statistics: CombinedStatistics) => {
     const result: {
         id: string,
         data: Datum[]
@@ -41,6 +47,14 @@ const toIndonesiaNewCases = (statistics: CombinedStatistics) => {
             {
                 id: "Sembuh",
                 data: mapDelta(statistics.TimeSeries, d => d.Recovered)
+            },
+            {
+                id: "Negatif",
+                data: mapDelta(statistics.TimeSeries, d => d.Negatives)
+            },
+            {
+                id: "Diperiksa",
+                data: mapDelta(statistics.TimeSeries, d => d.Observed)
             }
         ];
     const indexOfMarch1st = statistics.TimeSeries.findIndex(t => t.Date === "3/1/20");
@@ -73,8 +87,8 @@ const toIndonesiaNewCases = (statistics: CombinedStatistics) => {
     return result;
 };
 
-export const toNewCases = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
-    ? toIndonesiaNewCases(statistics)
+export const toDailyObservations = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
+    ? toIndonesiaDailyObservations(statistics)
     : [
         {
             id: "Positif",
@@ -87,5 +101,13 @@ export const toNewCases = (statistics: CombinedStatistics, view: View) => statis
         {
             id: "Sembuh",
             data: mapDelta(statistics.TimeSeries, d => d.Recovered)
+        },
+        {
+            id: "Negatif",
+            data: mapDelta(statistics.TimeSeries, d => d.Negatives)
+        },
+        {
+            id: "Diperiksa",
+            data: mapDelta(statistics.TimeSeries, d => d.Observed)
         }
-    ];
+    ]

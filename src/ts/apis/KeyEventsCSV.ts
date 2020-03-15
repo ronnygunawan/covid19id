@@ -1,14 +1,18 @@
 import { KeyEvent } from "../models/KeyEvent";
+import * as Papa from "papaparse";
 
 const keyEventsUrl = "https://raw.githubusercontent.com/ronnygunawan/covid19id/master/data/keyevents.csv";
 
 async function _getKeyEvents(): Promise<KeyEvent[]> {
     const response = await fetch(keyEventsUrl);
     const csv = await response.text();
-    const [, ...lines] = csv.split("\n");
+    const csvData: Papa.ParseResult = Papa.parse(csv, {
+        header: false
+    });
+    const [header, ...csvRows]: string[][] = csvData.data;
     const records: KeyEvent[] = [];
-    for (const line of lines) {
-        const [date, country, marker, description, newsUrl] = line.split(",");
+    for (const csvRow of csvRows) {
+        const [date, country, marker, description, newsUrl] = csvRow;
         const record: KeyEvent = {
             date,
             country: country !== "" ? country : null,

@@ -213,7 +213,9 @@ export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
                 Date: c.Date,
                 Confirmed: confirmed,
                 Deaths: deaths,
-                Recovered: recovered
+                Recovered: recovered,
+                Observed: null,
+                Negatives: null
             };
         })
     }));
@@ -228,49 +230,61 @@ export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
                 && (beforeLast.Confirmed !== 0
                     || beforeLast.Deaths !== 0
                     || beforeLast.Recovered !== 0)) {
-                provinceResult.TimeSeries.pop();
+                for (const provinceResult of result) {
+                    if (provinceResult.TimeSeries.length > 1) {
+                        provinceResult.TimeSeries.pop();
+                    }
+                }
+                break;
             }
         }
     }
     return result;
 }
 
-async function getAllStatistics(): Promise<CombinedStatistics[]> {
+async function getAllStatistics(): Promise<[CombinedStatistics[], boolean]> {
     const historicalStatistics = await getHistoricalStatistics();
-    const realtimeStatistics = await getRealtimeStatistics();
-    const allStatistics: CombinedStatistics[] = realtimeStatistics.map((rs): CombinedStatistics => {
-        const hs: CombinedStatistics = historicalStatistics.find(hs => hs.Province_State === rs.Province_State && hs.Country_Region === rs.Country_Region) || {
-            Province_State: rs.Province_State,
-            Country_Region: rs.Country_Region,
-            Lat: rs.Lat,
-            Long: rs.Long_,
-            TimeSeries: []
-        };
-        return {
-            ...hs,
-            TimeSeries: [
-                ...hs.TimeSeries,
-                {
-                    Date: "TODAY",
-                    Confirmed: rs.Confirmed,
-                    Deaths: rs.Deaths,
-                    Recovered: rs.Recovered
-                }
-            ]
-        };
-    });
-    return allStatistics;
+    try {
+        const realtimeStatistics = await getRealtimeStatistics();
+        const allStatistics: CombinedStatistics[] = realtimeStatistics.map((rs): CombinedStatistics => {
+            const hs: CombinedStatistics = historicalStatistics.find(hs => hs.Province_State === rs.Province_State && hs.Country_Region === rs.Country_Region) || {
+                Province_State: rs.Province_State,
+                Country_Region: rs.Country_Region,
+                Lat: rs.Lat,
+                Long: rs.Long_,
+                TimeSeries: []
+            };
+            return {
+                ...hs,
+                TimeSeries: [
+                    ...hs.TimeSeries,
+                    {
+                        Date: "TODAY",
+                        Confirmed: rs.Confirmed,
+                        Deaths: rs.Deaths,
+                        Recovered: rs.Recovered,
+                        Observed: null,
+                        Negatives: null
+                    }
+                ]
+            };
+        });
+        return [allStatistics, true];
+    } catch (err) {
+        return [historicalStatistics, false];
+    }
 }
 
 var allStatistics: CombinedStatistics[] | null = null;
+var realtimeStatisticsLoaded: boolean | null = null;
 
 export async function loadStatistics(): Promise<void> {
-    allStatistics = await getAllStatistics();
+    [allStatistics, realtimeStatisticsLoaded] = await getAllStatistics();
 }
 
-export async function getCountries(): Promise<[string, number][]> {
+export async function getCountries(): Promise<[[string, number][], boolean]> {
     if (allStatistics === null) {
-        allStatistics = await getAllStatistics();
+        [allStatistics, realtimeStatisticsLoaded] = await getAllStatistics();
     }
     const confirmedByCountry = allStatistics.reduce<{
         [country: string]: number
@@ -284,12 +298,12 @@ export async function getCountries(): Promise<[string, number][]> {
     }, {});
     const countries = Object.keys(confirmedByCountry);
     countries.sort((a, b) => a.localeCompare(b));
-    return countries.map(country => [country, confirmedByCountry[country]]);
+    return [countries.map(country => [country, confirmedByCountry[country]]), realtimeStatisticsLoaded!];
 }
 
 export async function getProvinces(country: string): Promise<[string, number][]> {
     if (allStatistics === null) {
-        allStatistics = await getAllStatistics();
+        [allStatistics, realtimeStatisticsLoaded] = await getAllStatistics();
     }
     const confirmedByProvince = allStatistics.filter(stat => stat.Country_Region === country && stat.Province_State).reduce<{
         [province: string]: number
@@ -304,7 +318,7 @@ export async function getProvinces(country: string): Promise<[string, number][]>
 
 export async function getStatistics(province_state: string | null, country_region: string | null): Promise<CombinedStatistics | null> {
     if (allStatistics === null) {
-        allStatistics = await getAllStatistics();
+        [allStatistics, realtimeStatisticsLoaded] = await getAllStatistics();
     }
     if (country_region === null) {
         if (allStatistics.length > 0) {
@@ -327,7 +341,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Date: t.Date,
                     Confirmed: 0,
                     Deaths: 0,
-                    Recovered: 0
+                    Recovered: 0,
+                    Observed: null,
+                    Negatives: null
                 }))
             });
         } else {
@@ -354,7 +370,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Date: t.Date,
                     Confirmed: 0,
                     Deaths: 0,
-                    Recovered: 0
+                    Recovered: 0,
+                    Observed: null,
+                    Negatives: null
                 }))
             });
         } else {
@@ -379,7 +397,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Date: t.Date,
                     Confirmed: 0,
                     Deaths: 0,
-                    Recovered: 0
+                    Recovered: 0,
+                    Observed: null,
+                    Negatives: null
                 }))
             });
         } else {

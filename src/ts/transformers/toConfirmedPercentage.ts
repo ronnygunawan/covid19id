@@ -1,7 +1,7 @@
 import { CombinedStatistics } from "../models/CombinedStatistics";
 import { View } from "../components/ViewSelector";
 
-const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
+const toIndonesiaConfirmedPercentage = (statistics: CombinedStatistics) => {
     const result: {
         id: string,
         data: {
@@ -10,17 +10,13 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
         }[]
     }[] = [
             {
-                id: "Positif",
+                id: "Kumulatif",
                 data: []
             },
             {
-                id: "Meninggal",
+                id: "Exclude ABK",
                 data: []
-            },
-            {
-                id: "Sembuh",
-                data: []
-            },
+            }
         ];
     let started = false;
     for (const t of statistics.TimeSeries) {
@@ -30,15 +26,20 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
         if (started) {
             result[0].data.push({
                 x: t.Date,
-                y: t.Confirmed
+                y: t.Observed !== null ? t.Confirmed / t.Observed * 100 : null
             });
             result[1].data.push({
                 x: t.Date,
-                y: t.Deaths
-            });
-            result[2].data.push({
-                x: t.Date,
-                y: t.Recovered
+                y: t.Observed !== null
+                    ? t.Date === "3/2/20"
+                        || t.Date === "3/3/20"
+                        || t.Date === "3/4/20"
+                        || t.Date === "3/5/20"
+                        || t.Date === "3/6/20"
+                        || t.Date === "3/7/20"
+                        ? t.Confirmed / (t.Observed - 257) * 100
+                        : (t.Confirmed - 1) / (t.Observed - 257) * 100
+                    : null
             });
         }
     }
@@ -58,36 +59,34 @@ const toIndonesiaCumulativeCases = (statistics: CombinedStatistics) => {
             x: date,
             y: null
         });
-        result[2].data.push({
-            x: date,
-            y: null
-        });
     }
     return result;
 };
 
-export const toCumulativeCases = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
-    ? toIndonesiaCumulativeCases(statistics)
+export const toConfirmedPercentage = (statistics: CombinedStatistics, view: View) => statistics.Country_Region === "Indonesia" && view === "mudik"
+    ? toIndonesiaConfirmedPercentage(statistics)
     : [
         {
-            id: "Positif",
+            id: "Kumulatif",
             data: statistics.TimeSeries.map(t => ({
                 x: t.Date,
-                y: t.Confirmed
+                y: t.Observed !== null ? t.Confirmed / t.Observed * 100 : null
             }))
         },
         {
-            id: "Meninggal",
+            id: "Exclude ABK",
             data: statistics.TimeSeries.map(t => ({
                 x: t.Date,
-                y: t.Deaths
-            }))
-        },
-        {
-            id: "Sembuh",
-            data: statistics.TimeSeries.map(t => ({
-                x: t.Date,
-                y: t.Recovered
+                y: t.Observed !== null
+                    ? t.Date === "3/2/20"
+                        || t.Date === "3/3/20"
+                        || t.Date === "3/4/20"
+                        || t.Date === "3/5/20"
+                        || t.Date === "3/6/20"
+                        || t.Date === "3/7/20"
+                        ? t.Confirmed / (t.Observed - 257) * 100
+                        : (t.Confirmed - 1) / (t.Observed - 257) * 100
+                    : null
             }))
         }
     ];
