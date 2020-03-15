@@ -71,7 +71,6 @@ export const App = () => {
                                             stat.TimeSeries.push(kcovidStatistics.TimeSeries[0]);
                                         }
                                         setStatistics(stat);
-                                        setRealtimeStatisticsLoaded(true);
                                     } else {
                                         setStatistics(statistics);
                                     }
