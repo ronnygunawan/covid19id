@@ -77,11 +77,11 @@
   font-size: 13px;
 }
 #chart {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  height: 100%;
   z-index: 0;
 }
 #countdown-mudik {
@@ -91,7 +91,7 @@
   color: #800;
 }
 .notice {
-  position: fixed;
+  position: absolute;
   top: 20px;
   width: 400px;
   left: 50%;
