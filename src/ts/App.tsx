@@ -65,8 +65,13 @@ export const App = () => {
                                 Kawalcovid19id.getStatistics().then(kcovidStatistics => {
                                     if (kcovidStatistics !== null && kcovidStatistics.TimeSeries.length === 1) {
                                         const stat = {...statistics};
-                                        stat.TimeSeries[stat.TimeSeries.length - 1] = kcovidStatistics.TimeSeries[0];
+                                        if (stat.TimeSeries[stat.TimeSeries.length - 1].Date === "TODAY") {
+                                            stat.TimeSeries[stat.TimeSeries.length - 1] = kcovidStatistics.TimeSeries[0];
+                                        } else {
+                                            stat.TimeSeries.push(kcovidStatistics.TimeSeries[0]);
+                                        }
                                         setStatistics(stat);
+                                        setRealtimeStatisticsLoaded(true);
                                     } else {
                                         setStatistics(statistics);
                                     }
