@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
 namespace Covid19id {
-	public class Program {
+	public static class Program {
 		public static void Main(string[] args) {
 			CreateHostBuilder(args).Build().Run();
 		}

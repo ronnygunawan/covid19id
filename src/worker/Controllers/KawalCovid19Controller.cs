@@ -9,17 +9,17 @@ namespace Covid19id.Controllers {
 	[ApiController]
 	[Route("kawalcovid19")]
 	public class KawalCovid19Controller : ControllerBase {
-		private readonly KawalCovid19SheetServices _kawalCovid19SheetServices;
+		private readonly IKawalCovid19id _kawalCovid19id;
 
 		public KawalCovid19Controller(
-			KawalCovid19SheetServices kawalCovid19SheetServices
+			IKawalCovid19id kawalCovid19id
 		) {
-			_kawalCovid19SheetServices = kawalCovid19SheetServices;
+			_kawalCovid19id = kawalCovid19id;
 		}
 
 		[HttpGet("statistik-harian")]
 		public async Task<ImmutableList<DailyStatistics>> GetDailyStatisticsAsync(CancellationToken cancellationToken) {
-			return await _kawalCovid19SheetServices.GetDailyStatisticsAsync(cancellationToken).ConfigureAwait(false);
+			return await _kawalCovid19id.GetDailyStatisticsAsync(cancellationToken).ConfigureAwait(false);
 		}
 	}
 }

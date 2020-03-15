@@ -1,41 +1,46 @@
-﻿namespace Covid19id.Models {
+﻿using System;
+
+namespace Covid19id.Models {
 	public class DailyStatistics {
+		public DateTime Date { get; }
 		public int NewCases { get; }
 		public int Cases { get; }
 		public int ActiveCases { get; }
 		public int NewRecoveries { get; }
 		public int Recovered { get; }
 		public int NewDeaths { get; }
-		public int Died { get; }
+		public int Deceased { get; }
 		public int Observed { get; }
 		public int Confirmed { get; }
-		public int Negative { get; }
-		public int Testing { get; }
+		public int Negatives { get; }
+		public int Observing { get; }
 
 		public DailyStatistics(
+			DateTime date,
 			int newCases,
 			int cases,
 			int activeCases,
 			int newRecoveries,
 			int recovered,
 			int newDeaths,
-			int died,
+			int deceased,
 			int observed,
 			int confirmed,
-			int negative,
-			int testing
+			int negatives,
+			int observing
 		) {
+			Date = date;
 			NewCases = newCases;
 			Cases = cases;
 			ActiveCases = activeCases;
 			NewRecoveries = newRecoveries;
 			Recovered = recovered;
 			NewDeaths = newDeaths;
-			Died = died;
+			Deceased = deceased;
 			Observed = observed;
 			Confirmed = confirmed;
-			Negative = negative;
-			Testing = testing;
+			Negatives = negatives;
+			Observing = observing;
 		}
 	}
 }

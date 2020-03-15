@@ -1,4 +1,5 @@
-using Covid19id.Services;
+using Covid19id.ApiCaches;
+using Covid19id.ApiClients;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,9 @@ namespace Covid19id {
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services) {
 			services.AddControllers();
-			services.AddServices();
+			services.AddMemoryCache();
+			services.AddApiClients();
+			services.AddApiCaches();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

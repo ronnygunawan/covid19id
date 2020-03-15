@@ -2,3 +2,5 @@ node_modules
 bin
 obj
 .vs
+src/worker/.config/
+src/worker/Properties
