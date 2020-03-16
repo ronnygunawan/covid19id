@@ -16,6 +16,9 @@
 #location-selector .dropdown {
   display: inline-block;
 }
+#location-selector .dropdown:not(:first-child) {
+  margin-left: 6px;
+}
 #location-selector .dropdown-toggle {
   font-size: 13px;
   background: #ffffff;
