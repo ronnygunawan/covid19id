@@ -7,6 +7,7 @@ import { View } from "./ViewSelector";
 import { Mode } from "./ModeSelector";
 
 interface Props {
+    darkMode: boolean;
     country: string | null;
     view: View;
     mode: Mode;
@@ -19,6 +20,7 @@ interface Props {
 const daysOfWeek = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 export const LineChart = ({
+    darkMode,
     country,
     view,
     mode,
@@ -107,7 +109,7 @@ export const LineChart = ({
                         : "auto",
                 max: yScaleMax,
                 stacked: false,
-                base: 10,
+                base: 10
             }}
             gridXValues={data[0]?.data.map(d => d.x as string).filter(x => {
                 if (x === "TODAY") return true;

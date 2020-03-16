@@ -16,6 +16,7 @@ import { CountdownMudik } from "./components/CountdownMudik";
 import { toCumulativeCases, toActiveCases, toNewCases, toCFR1, toCFR2, toObservations, toDailyObservations, toConfirmedPercentage, toCaseFatalityRate } from "./transformers";
 
 export const App = () => {
+    const [darkMode, setDarkMode] = React.useState<boolean>(true);
     const [statistics, setStatistics] = React.useState<CombinedStatistics | null>(null);
     const [keyEvents, setKeyEvents] = React.useState<KeyEvent[] | null>(null);
     const [suspectDeaths, setSuspectDeaths] = React.useState<SuspectDeath[] | null>(null);
@@ -57,6 +58,10 @@ export const App = () => {
                                             ? toCFR2(statistics, cfrDelay)
                                             : []
         : [];
+
+    React.useEffect(() => {
+        document.body.className = darkMode ? "theme-dark" : "theme-light";
+    }, [darkMode]);
 
     return <>
         <div className="row">
@@ -142,6 +147,7 @@ export const App = () => {
             </div>
         </div>
         <LineChart
+            darkMode={darkMode}
             country={statistics?.Country_Region || null}
             view={view}
             mode={mode}

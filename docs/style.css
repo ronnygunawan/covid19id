@@ -1,3 +1,6 @@
+.theme-dark {
+  background: #121212;
+}
 .row {
   margin: 0;
 }
@@ -7,7 +10,7 @@
 }
 #location-selector {
   position: relative;
-  padding: 20px 0 20px 80px;
+  padding: 20px 3px 20px 80px;
   z-index: 1;
 }
 #location-selector .dropdown {
@@ -19,6 +22,11 @@
   color: #333333;
   border-color: #cccccc;
 }
+.theme-dark #location-selector .dropdown-toggle {
+  background: #333;
+  color: #ccc;
+  border-color: #555;
+}
 #location-selector .dropdown-menu {
   width: 220px;
   max-height: 500px;
@@ -27,7 +35,7 @@
 }
 #view-selector {
   position: relative;
-  padding: 20px 0;
+  padding: 20px 3px;
   z-index: 1;
 }
 #view-selector .dropdown-toggle {
@@ -35,6 +43,11 @@
   background: #ffffff;
   color: #333333;
   border-color: #cccccc;
+}
+.theme-dark #view-selector .dropdown-toggle {
+  background: #333;
+  color: #ccc;
+  border-color: #555;
 }
 #view-selector .dropdown-menu {
   width: 220px;
@@ -44,7 +57,7 @@
 }
 #mode-selector {
   position: relative;
-  padding: 20px 0;
+  padding: 20px 3px;
   z-index: 1;
 }
 #mode-selector .dropdown-toggle {
@@ -52,6 +65,11 @@
   background: #ffffff;
   color: #333333;
   border-color: #cccccc;
+}
+.theme-dark #mode-selector .dropdown-toggle {
+  background: #333;
+  color: #ccc;
+  border-color: #555;
 }
 #mode-selector .dropdown-menu {
   width: 220px;
@@ -61,7 +79,7 @@
 }
 #scale-selector {
   position: relative;
-  padding: 20px 120px 20px 0;
+  padding: 20px 120px 20px 3px;
   z-index: 1;
 }
 #scale-selector .dropdown-toggle {
@@ -69,6 +87,11 @@
   background: #ffffff;
   color: #333333;
   border-color: #cccccc;
+}
+.theme-dark #scale-selector .dropdown-toggle {
+  background: #333;
+  color: #ccc;
+  border-color: #555;
 }
 #scale-selector .dropdown-menu {
   width: 220px;
@@ -83,6 +106,9 @@
   right: 0;
   height: 100%;
   z-index: 0;
+}
+.theme-dark #chart {
+  filter: invert(1) hue-rotate(180deg);
 }
 #countdown-mudik {
   padding: 26px 15px;
