@@ -21,5 +21,10 @@ namespace Covid19id.Controllers {
 		public async Task<ImmutableList<DailyStatistics>> GetDailyStatisticsAsync(CancellationToken cancellationToken) {
 			return await _kawalCovid19id.GetDailyStatisticsAsync(cancellationToken).ConfigureAwait(false);
 		}
+
+		[HttpGet("statistik-provinsi")]
+		public async Task<ImmutableList<ProvinceStatistics>> GetProvinceStatisticsAsync(CancellationToken cancellationToken) {
+			return await _kawalCovid19id.GetProvinceStatisticsAsync(cancellationToken).ConfigureAwait(false);
+		}
 	}
 }

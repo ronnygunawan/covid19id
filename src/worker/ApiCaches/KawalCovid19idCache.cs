@@ -26,5 +26,12 @@ namespace Covid19id.ApiCaches {
 				return await _client.GetDailyStatisticsAsync(cancellationToken).ConfigureAwait(false);
 			}).ConfigureAwait(false);
 		}
+
+		public async Task<ImmutableList<ProvinceStatistics>> GetProvinceStatisticsAsync(CancellationToken cancellationToken) {
+			return await _memoryCache.GetOrCreateAsync("KawalCovid19idProvinceStatustics", async entry => {
+				entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+				return await _client.GetProvinceStatisticsAsync(cancellationToken).ConfigureAwait(false);
+			}).ConfigureAwait(false);
+		}
 	}
 }

@@ -16,6 +16,7 @@ namespace Covid19id.ApiClients {
 	public class KawalCovid19idClient : IKawalCovid19id {
 		private const string SPREADSHEET_ID = "1ma1T9hWbec1pXlwZ89WakRk-OfVUQZsOCFl4FwZxzVw";
 		private const string DAILY_STATISTICS_RANGE = "'Statistik Harian'!A2:O";
+		private const string PROVINCE_STATISTICS_RANGE = "'Kasus per Provinsi'!A3:E38";
 
 		private readonly IConfiguration _configuration;
 
@@ -72,6 +73,38 @@ namespace Covid19id.ApiClients {
 					}
 				})
 				.OfType<DailyStatistics>()
+				.ToImmutableList();
+		}
+
+		public async Task<ImmutableList<ProvinceStatistics>> GetProvinceStatisticsAsync(CancellationToken cancellationToken) {
+			using SheetsService sheetsService = new SheetsService(new BaseClientService.Initializer {
+				ApplicationName = "Covid19id",
+				ApiKey = _configuration["GoogleSheetsApiKey"]
+			});
+
+			SpreadsheetsResource.ValuesResource.GetRequest getRequest = sheetsService.Spreadsheets.Values.Get(
+				spreadsheetId: SPREADSHEET_ID,
+				range: PROVINCE_STATISTICS_RANGE);
+
+			ValueRange response = await getRequest.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+
+			return response.Values
+				.Where(row => row.Count >= 2)
+				.Select(row => {
+					if (row.ToArray() is var columns
+						&& columns[1] is string province) {
+						return new ProvinceStatistics(
+							id: columns[0] is string A && int.TryParse(A, out int id) ? id : (int?)null,
+							province: province,
+							cases: columns.Length >= 3 && columns[2] is string C && int.TryParse(C, out int cases) ? cases : 0,
+							deceased: columns.Length >= 4 && columns[3] is string D && int.TryParse(D, out int deceased) ? deceased : 0,
+							recovered: columns.Length >= 5 && columns[4] is string E && int.TryParse(E, out int recovered) ? recovered : 0
+						);
+					} else {
+						return null;
+					}
+				})
+				.OfType<ProvinceStatistics>()
 				.ToImmutableList();
 		}
 
