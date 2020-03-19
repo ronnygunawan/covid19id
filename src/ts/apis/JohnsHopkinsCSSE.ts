@@ -301,6 +301,15 @@ export async function getCountries(): Promise<[[string, number][], boolean]> {
     return [countries.map(country => [country, confirmedByCountry[country]]), realtimeStatisticsLoaded!];
 }
 
+export async function getTop10Countries(): Promise<string[]> {
+    if (allStatistics === null) {
+        [allStatistics, realtimeStatisticsLoaded] = await getAllStatistics();
+    }
+    const sortedStatistics = [...allStatistics];
+    sortedStatistics.sort((a, b) => b.TimeSeries[b.TimeSeries.length - 1].Confirmed - a.TimeSeries[a.TimeSeries.length - 1].Confirmed);
+    return sortedStatistics.slice(0, 10).map(stat => stat.Country_Region);
+}
+
 export async function getProvinces(country: string): Promise<[string, number][]> {
     if (allStatistics === null) {
         [allStatistics, realtimeStatisticsLoaded] = await getAllStatistics();

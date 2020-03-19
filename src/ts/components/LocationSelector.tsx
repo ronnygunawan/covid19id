@@ -7,7 +7,7 @@ interface Props {
     setRealtimeStatisticsLoaded: (loaded: boolean) => void;
 }
 
-export const countryShortlist = ["Indonesia", "Singapore", "Malaysia", "China", "South Korea", "Iran", "Italy", "France", "Germany", "Spain", "Japan", "US"];
+export const countryShortlist = ["Indonesia", "Singapore", "Malaysia", "China"];
 
 export const LocationSelector = ({
     onChange,
@@ -18,11 +18,15 @@ export const LocationSelector = ({
     const [countries, setCountries] = React.useState<[string, number][] | null>(null);
     const [provinces, setProvinces] = React.useState<[string, number][] | null>(null);
     const [dropdownState, setDropdownState] = React.useState<"country" | "province" | null>(null);
+    const [top10Countries, setTop10Countries] = React.useState<string[] | null>(null);
 
     React.useEffect(() => {
         JohnsHopkinsCSSE.getCountries().then(([countries, realtimeStatisticsLoaded]) => {
             setCountries(countries);
             setRealtimeStatisticsLoaded(realtimeStatisticsLoaded);
+            return JohnsHopkinsCSSE.getTop10Countries();
+        }).then(countries => {
+            setTop10Countries(countries.filter(c => !countryShortlist.find(cs => cs == c)));
         });
         onChange(province, country);
     }, []);
@@ -77,7 +81,10 @@ export const LocationSelector = ({
                     </div>
                 </DropdownItem>
                 <DropdownItem divider />
-                {countryShortlist.filter(name => countries.find(([n]) => n === name)).map((c, index) => {
+                {[
+                    ...countryShortlist,
+                    ...(top10Countries || [])
+                ].filter(name => countries.find(([n]) => n === name)).map((c, index) => {
                     const [name, confirmed] = countries.find(([n]) => n === c)!;
                     return <DropdownItem key={index} onClick={() => {
                         if (country !== c) {
