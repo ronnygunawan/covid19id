@@ -305,9 +305,19 @@ export async function getTop10Countries(): Promise<string[]> {
     if (allStatistics === null) {
         [allStatistics, realtimeStatisticsLoaded] = await getAllStatistics();
     }
-    const sortedStatistics = [...allStatistics];
-    sortedStatistics.sort((a, b) => b.TimeSeries[b.TimeSeries.length - 1].Confirmed - a.TimeSeries[a.TimeSeries.length - 1].Confirmed);
-    return sortedStatistics.slice(0, 10).map(stat => stat.Country_Region);
+    const confirmedByCountry = allStatistics.reduce<{
+        [country: string]: number
+    }>((prev, cur) => {
+        if (prev[cur.Country_Region]) {
+            prev[cur.Country_Region] += cur.TimeSeries[cur.TimeSeries.length - 1].Confirmed;
+        } else {
+            prev[cur.Country_Region] = cur.TimeSeries[cur.TimeSeries.length - 1].Confirmed;
+        }
+        return prev;
+    }, {});
+    const countries = Object.keys(confirmedByCountry);
+    countries.sort((a, b) => confirmedByCountry[b] - confirmedByCountry[a]);
+    return countries.slice(0, 10);
 }
 
 export async function getProvinces(country: string): Promise<[string, number][]> {
