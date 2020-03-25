@@ -7,7 +7,7 @@ export interface CombinedStatistics {
         Date: string;
         Confirmed: number;
         Deaths: number;
-        Recovered: number;
+        Recovered: number | null;
         Observed: number | null;
         Negatives: number | null;
     }[];

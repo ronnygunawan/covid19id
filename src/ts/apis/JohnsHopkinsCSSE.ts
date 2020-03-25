@@ -3,8 +3,8 @@ import * as Papa from "papaparse";
 import { USStates } from "../helpers/USStates";
 
 const realtimeUrl = "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases/FeatureServer/1/query?f=json&where=Confirmed%20%3E%200&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc&outSR=102100&resultOffset=0&resultRecordCount=250&cacheHint=true";
-const confirmedCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv";
-const deathCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv";
+const confirmedCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
+const deathCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv";
 const recoveredCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv";
 
 interface RealtimeApiDailyStatistics {
@@ -208,12 +208,11 @@ export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
                 .find(rc => rc.Province_State === cc.Province_State && rc.Country_Region === cc.Country_Region)!
                 ?.TimeSeries.find(r => r.Date === c.Date)
                 ?.Cases;
-            if (recovered === undefined) throw new Error();
             return {
                 Date: c.Date,
                 Confirmed: confirmed,
                 Deaths: deaths,
-                Recovered: recovered,
+                Recovered: recovered || null,
                 Observed: null,
                 Negatives: null
             };
@@ -341,13 +340,15 @@ export async function getStatistics(province_state: string | null, country_regio
     }
     if (country_region === null) {
         if (allStatistics.length > 0) {
-            return allStatistics.reduce<CombinedStatistics>((prev, cur) => {
+            const aggregatedStatistics = allStatistics.reduce<CombinedStatistics>((prev, cur) => {
                 for (const ct of cur.TimeSeries) {
                     const pt = prev.TimeSeries.find(pt => pt.Date === ct.Date);
                     if (pt !== undefined) {
                         pt.Confirmed += ct.Confirmed;
                         pt.Deaths += ct.Deaths;
-                        pt.Recovered += ct.Recovered;
+                        if (pt.Recovered !== null && ct.Recovered !== null) {
+                            pt.Recovered += ct.Recovered;
+                        }
                     }
                 }
                 return prev;
@@ -365,18 +366,30 @@ export async function getStatistics(province_state: string | null, country_regio
                     Negatives: null
                 }))
             });
+            for (const ct of aggregatedStatistics.TimeSeries) {
+                if (ct.Recovered === 0 && allStatistics.every(s => {
+                    const pt = s.TimeSeries.find(pt => pt.Date === ct.Date);
+                    if (!pt) return true;
+                    return pt.Recovered === null;
+                })) {
+                    ct.Recovered = null;
+                }
+            }
+            return aggregatedStatistics;
         } else {
             return null;
         }
     } else if (country_region === "DI LUAR CHINA") {
         if (allStatistics.length > 0) {
-            return allStatistics.filter(s => s.Country_Region !== "China").reduce<CombinedStatistics>((prev, cur) => {
+            const aggregatedStatistics = allStatistics.filter(s => s.Country_Region !== "China").reduce<CombinedStatistics>((prev, cur) => {
                 for (const ct of cur.TimeSeries) {
                     const pt = prev.TimeSeries.find(pt => pt.Date === ct.Date);
                     if (pt !== undefined) {
                         pt.Confirmed += ct.Confirmed;
                         pt.Deaths += ct.Deaths;
-                        pt.Recovered += ct.Recovered;
+                        if (pt.Recovered !== null && ct.Recovered !== null) {
+                            pt.Recovered += ct.Recovered;
+                        }
                     }
                 }
                 return prev;
@@ -394,19 +407,31 @@ export async function getStatistics(province_state: string | null, country_regio
                     Negatives: null
                 }))
             });
+            for (const ct of aggregatedStatistics.TimeSeries) {
+                if (ct.Recovered === 0 && allStatistics.filter(s => s.Country_Region !== "China").every(s => {
+                    const pt = s.TimeSeries.find(pt => pt.Date === ct.Date);
+                    if (!pt) return true;
+                    return pt.Recovered === null;
+                })) {
+                    ct.Recovered = null;
+                }
+            }
+            return aggregatedStatistics;
         } else {
             return null;
         }
     } else if (province_state === null) {
         const statistics = allStatistics.filter(stat => stat.Country_Region === country_region);
         if (statistics.length > 1) {
-            return statistics.reduce<CombinedStatistics>((prev, cur) => {
+            const aggregatedStatistics = statistics.reduce<CombinedStatistics>((prev, cur) => {
                 for (const ct of cur.TimeSeries) {
                     const pt = prev.TimeSeries.find(pt => pt.Date === ct.Date);
                     if (pt !== undefined) {
                         pt.Confirmed += ct.Confirmed;
                         pt.Deaths += ct.Deaths;
-                        pt.Recovered += ct.Recovered;
+                        if (pt.Recovered !== null && ct.Recovered !== null) {
+                            pt.Recovered += ct.Recovered;
+                        }
                     }
                 }
                 return prev;
@@ -421,6 +446,16 @@ export async function getStatistics(province_state: string | null, country_regio
                     Negatives: null
                 }))
             });
+            for (const ct of aggregatedStatistics.TimeSeries) {
+                if (ct.Recovered === 0 && allStatistics.filter(s => s.Country_Region !== country_region).every(s => {
+                    const pt = s.TimeSeries.find(pt => pt.Date === ct.Date);
+                    if (!pt) return true;
+                    return pt.Recovered === null;
+                })) {
+                    ct.Recovered = null;
+                }
+            }
+            return aggregatedStatistics;
         } else {
             return statistics[0] || null;
         }

@@ -30,7 +30,7 @@ const toIndonesiaActiveCases = (statistics: CombinedStatistics) => {
         if (started) {
             result[0].data.push({
                 x: t.Date,
-                y: t.Confirmed - t.Deaths - t.Recovered
+                y: t.Recovered === null ? null : t.Confirmed - t.Deaths - t.Recovered
             });
             result[1].data.push({
                 x: t.Date,
@@ -73,7 +73,7 @@ export const toActiveCases = (statistics: CombinedStatistics, view: View) => sta
             id: "Belum Sembuh",
             data: statistics.TimeSeries.map(t => ({
                 x: t.Date,
-                y: t.Confirmed - t.Deaths - t.Recovered
+                y: t.Recovered === null ? null : t.Confirmed - t.Deaths - t.Recovered
             }))
         },
         {

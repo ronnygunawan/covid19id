@@ -6,7 +6,7 @@ interface DailyStatistics {
     Date: string;
     Confirmed: number;
     Deaths: number;
-    Recovered: number;
+    Recovered: number | null;
     Negatives: number | null;
     Observed: number | null;
 }
