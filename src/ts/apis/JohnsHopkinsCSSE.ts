@@ -5,7 +5,7 @@ import { USStates } from "../helpers/USStates";
 const realtimeUrl = "https://services1.arcgis.com/0MSEUqKaxRlEPj5g/arcgis/rest/services/ncov_cases/FeatureServer/1/query?f=json&where=Confirmed%20%3E%200&returnGeometry=false&spatialRel=esriSpatialRelIntersects&outFields=*&orderByFields=Confirmed%20desc&outSR=102100&resultOffset=0&resultRecordCount=250&cacheHint=true";
 const confirmedCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
 const deathCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv";
-const recoveredCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv";
+const recoveredCasesUrl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv";
 
 interface RealtimeApiDailyStatistics {
     Province_State: string | null;
@@ -147,9 +147,10 @@ function parseCsv(csv: string): CsvModel[] {
             Lat: parseFloat(lat),
             Long: parseFloat(long),
             TimeSeries: dates.map((date, i) => {
+                const [m, d, y] = date.split("/");
                 const cases = parseInt(counts[i]) || 0;
                 return {
-                    Date: date,
+                    Date: y.length === 4 ? `${m}/${d}/${y.slice(-2)}` : date,
                     Cases: cases
                 };
             })
