@@ -5,6 +5,9 @@
   "keywords": [],
   "author": "Ronny Gunawan",
   "license": "MIT",
+  "scripts": {
+    "build": "webpack"
+  },
   "dependencies": {
     "@nivo/line": "^0.61.1",
     "jquery": "^3.4.1",
