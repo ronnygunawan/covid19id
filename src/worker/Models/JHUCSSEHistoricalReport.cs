@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Newtonsoft.Json;
 
 namespace Covid19id.Models {

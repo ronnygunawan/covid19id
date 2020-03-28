@@ -72,8 +72,8 @@ namespace Covid19id.Models {
 						confirmed: datum.Reports.Sum(report => report.Confirmed),
 						deaths: datum.Reports.Sum(report => report.Deaths),
 						recovered: datum.Reports.Sum(report => report.Recovered),
-						active: datum.Reports.All(report => report.Active.HasValue)
-							? datum.Reports.Sum(report => report.Active!.Value)
+						active: datum.Reports.Any(report => report.Active.HasValue)
+							? datum.Reports.Sum(report => report.Active ?? 0)
 							: (int?)null
 					))
 					.ToImmutableList()
@@ -103,8 +103,8 @@ namespace Covid19id.Models {
 						confirmed: datum.Reports.Sum(report => report.Confirmed),
 						deaths: datum.Reports.Sum(report => report.Deaths),
 						recovered: datum.Reports.Sum(report => report.Recovered),
-						active: datum.Reports.All(report => report.Active.HasValue)
-							? datum.Reports.Sum(report => report.Active!.Value)
+						active: datum.Reports.Any(report => report.Active.HasValue)
+							? datum.Reports.Sum(report => report.Active ?? 0)
 							: (int?)null
 					))
 					.ToImmutableList()

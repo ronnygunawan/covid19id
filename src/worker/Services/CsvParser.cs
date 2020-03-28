@@ -17,18 +17,26 @@ namespace Covid19id.Services {
 			int startOfLiteral = 0;
 			int endOfLiteral = 0;
 			ParserState state = ParserState.InStartingWhiteSpace;
+			void TrimAndAdd(string value) {
+				value = value.Trim();
+				if (value.StartsWith('"') && value.EndsWith('"')) {
+					values.Add(value[1..^1]);
+				} else {
+					values.Add(value);
+				}
+			}
 			for (int i = 0, length = csv.Length; i <= length; i++) {
 				if (i == length) {
 					switch (state) {
 						case ParserState.InStartingWhiteSpace:
 						case ParserState.InUnquotedValue:
 						case ParserState.InEscapeSequence:
-							values.Add(span.Slice(startOfLiteral, i - startOfLiteral).ToString());
+							TrimAndAdd(span.Slice(startOfLiteral, i - startOfLiteral).ToString());
 							return values;
 						case ParserState.InQuotedValue:
 							throw new FormatException("End of file in quoted literal.");
 						case ParserState.InTrailingWhiteSpace:
-							values.Add(span.Slice(startOfLiteral, endOfLiteral - startOfLiteral + 1).ToString());
+							TrimAndAdd(span.Slice(startOfLiteral, endOfLiteral - startOfLiteral + 1).ToString());
 							return values;
 					}
 				} else {
@@ -60,12 +68,12 @@ namespace Covid19id.Services {
 								case ParserState.InStartingWhiteSpace:
 								case ParserState.InUnquotedValue:
 								case ParserState.InEscapeSequence:
-									values.Add(span.Slice(startOfLiteral, i - startOfLiteral).ToString());
+									TrimAndAdd(span.Slice(startOfLiteral, i - startOfLiteral).ToString());
 									startOfLiteral = i + 1;
 									state = ParserState.InStartingWhiteSpace;
 									break;
 								case ParserState.InTrailingWhiteSpace:
-									values.Add(span.Slice(startOfLiteral, endOfLiteral - startOfLiteral + 1).ToString());
+									TrimAndAdd(span.Slice(startOfLiteral, endOfLiteral - startOfLiteral + 1).ToString());
 									startOfLiteral = i + 1;
 									state = ParserState.InStartingWhiteSpace;
 									break;

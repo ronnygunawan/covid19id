@@ -18,8 +18,31 @@ namespace Covid19id.ApiClients {
 	public class JHUCSSEApiClient : IJHUCSSEApi {
 		private const string CACHE_FOLDER_NAME = "csse_covid_19_daily_reports";
 		private const int PARSER_VERSION = 1;
+
+		private static readonly DateTime JAN_22ND_UTC = new DateTime(2020, 1, 22, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime JAN_23RD_UTC = new DateTime(2020, 1, 23, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime JAN_27TH_UTC = new DateTime(2020, 1, 27, 0, 0, 0, DateTimeKind.Utc);
+
+		/// <summary>
+		/// US Admin1 written in {Admin2}, {State code} format
+		/// </summary>
+		private static readonly DateTime FEB_1ST_UTC = new DateTime(2020, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+
+		/// <summary>
+		/// Canada Admin1 written in {Admin2}, {State code} format
+		/// </summary>
+		private static readonly DateTime FEB_4TH_UTC = new DateTime(2020, 2, 4, 0, 0, 0, DateTimeKind.Utc);
+
+		/// <summary>
+		/// CSV v2 format
+		/// </summary>
 		private static readonly DateTime MARCH_1ST_UTC = new DateTime(2020, 3, 1, 0, 0, 0, DateTimeKind.Utc);
+
+		/// <summary>
+		/// CSV v3 format
+		/// </summary>
 		private static readonly DateTime MARCH_22ND_UTC = new DateTime(2020, 3, 22, 0, 0, 0, DateTimeKind.Utc);
+
 		private readonly HttpClient _httpClient;
 
 		public JHUCSSEApiClient(
@@ -51,19 +74,89 @@ namespace Covid19id.ApiClients {
 				foreach(string line in csv.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1)) {
 					List<string> values = CsvParser.Split(line);
 					string? admin1 = values[0].DefaultIfWhiteSpace();
+					string? admin2 = null;
 					string country = values[1];
 					DateTime lastUpdate = DateTime.Parse(values[2], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 					int confirmed = string.IsNullOrWhiteSpace(values[3]) ? 0 : int.Parse(values[3], CultureInfo.InvariantCulture);
 					int deaths = string.IsNullOrWhiteSpace(values[4]) ? 0 : int.Parse(values[4], CultureInfo.InvariantCulture);
 					int recovered = string.IsNullOrWhiteSpace(values[5]) ? 0 : int.Parse(values[5], CultureInfo.InvariantCulture);
 
+					#region Data normalization and cleanup
+
+					// Australia was empty and removed later on 24th
+					if (utcDate == JAN_23RD_UTC
+						&& country == "Australia") continue;
+
+					// Brazil was empty and removed later on 24th
+					if (utcDate == JAN_23RD_UTC
+						&& country == "Brazil") continue;
+
+					// Colombia was empty and removed later on 24th
+					if (utcDate == JAN_23RD_UTC
+						&& country == "Colombia") continue;
+
+					// Tibet was empty and removed later on 24th
+					if ((utcDate == JAN_22ND_UTC || utcDate == JAN_23RD_UTC)
+						&& country == "Mainland China"
+						&& admin1 == "Tibet") continue;
+
+					// Malaysia was empty and removed later on 24th
+					if (utcDate == JAN_23RD_UTC
+						&& country == "Malaysia") continue;
+
+					// Mexico was empty and removed later on 24th
+					if (utcDate == JAN_23RD_UTC
+						&& country == "Mexico") continue;
+
+					// Philippines was empty and removed later on 24th
+					if (utcDate == JAN_23RD_UTC
+						&& country == "Philippines") continue;
+
+					if (country == "US"
+						&& admin1 == "Chicago") {
+						//admin2 = "Chicago";
+						admin1 = "Illinois";
+					}
+
+					// 1 Confirmed case later removed
+					if (utcDate == JAN_27TH_UTC
+						&& country == "Ivory Coast") continue;
+
+					// Germany later tracked nationally
+					if (country == "Germany"
+						&& admin1 == "Bavaria") {
+						admin1 = null;
+					}
+
+					if (utcDate >= FEB_1ST_UTC
+						&& country == "US") {
+						string[] admins = admin1!.Split(',');
+						if (admins.Length == 2) {
+							admin2 = admins[0];
+							admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
+						}
+					}
+
+					if (utcDate >= FEB_4TH_UTC
+						&& country == "Canada") {
+						string[] admins = admin1!.Split(',');
+						if (admins.Length == 2) {
+							admin2 = admins[0];
+							admin1 = GeographyServices.GetCanadaStateName(admins[1].Trim());
+						}
+					}
+
+					#endregion
+
 					JHUCSSEReport report = new JHUCSSEReport(
 						key: admin1 is null
 							? country
-							: $"{admin1}, {country}",
+							: admin2 is null
+								? $"{admin1}, {country}"
+								: $"{admin2}, {admin1}, {country}",
 						country: country,
 						admin1: admin1,
-						admin2: null,
+						admin2: admin2,
 						fips: null,
 						lastUpdate: lastUpdate,
 						latitude: null,
@@ -138,6 +231,41 @@ namespace Covid19id.ApiClients {
 						int active = int.Parse(values[10], CultureInfo.InvariantCulture);
 						string key = values[11];
 
+						#region Data normalization and cleanup
+
+						// Denmark proper
+						if (country == "Denmark" && admin1 == null) {
+							admin1 = "Denmark";
+						}
+
+						// Metropolitan France
+						if (country == "France" && admin1 == null) {
+							admin1 = "France";
+						}
+
+						// European Netherlands
+						if (country == "Netherlands" && admin1 == null) {
+							admin1 = "Netherlands";
+						}
+
+						// UK
+						if (country == "United Kingdom" && admin1 == null) {
+							admin1 = "United Kingdom";
+						}
+
+						// Duplicate District of Columbia on March 22, 2020
+						if (utcDate == MARCH_22ND_UTC
+							&& country == "US"
+							&& admin1 == "District of Columbia"
+							&& admin2 == "District of Columbia"
+							&& fips == "11001"
+							&& confirmed == 0
+							&& deaths == 0
+							&& recovered == 0
+							&& active == 0) continue;
+
+						#endregion
+
 						JHUCSSEReport report = new JHUCSSEReport(
 							key: key,
 							country: country,
@@ -162,6 +290,7 @@ namespace Covid19id.ApiClients {
 						} else {
 							Console.WriteLine(exc);
 						}
+						throw;
 					}
 				}
 				return new JHUCSSEDailyReport(

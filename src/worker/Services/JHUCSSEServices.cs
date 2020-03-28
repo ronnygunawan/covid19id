@@ -50,9 +50,24 @@ namespace Covid19id.Services {
 			}).ConfigureAwait(false);
 		}
 
+		public async Task<ImmutableList<Country>> GetAllCountriesAsync(CancellationToken cancellationToken) {
+			JHUCSSEDailyReportCollection allDailyReports = await GetAllDailyReportsAsync(cancellationToken).ConfigureAwait(false);
+			return allDailyReports[allDailyReports.Keys.Max()].GetCountries();
+		}
+
 		public async Task<JHUCSSEHistoricalReport> GetWorldHistoricalReportAsync(CancellationToken cancellationToken) {
 			JHUCSSEDailyReportCollection allDailyReports = await GetAllDailyReportsAsync(cancellationToken).ConfigureAwait(false);
 			return allDailyReports.GetWorldHistoricalReport();
+		}
+
+		public async Task<JHUCSSEHistoricalReport> GetCountryHistoricalReportAsync(string country, CancellationToken cancellationToken) {
+			JHUCSSEDailyReportCollection allDailyReports = await GetAllDailyReportsAsync(cancellationToken).ConfigureAwait(false);
+			return allDailyReports.GetHistoricalReportByCountry(country) ?? throw new KeyNotFoundException($"Historical report not found for {country}.");
+		}
+
+		public async Task<JHUCSSEHistoricalReport> GetAdmin1HistoricalReportAsync(string country, string admin1, CancellationToken cancellationToken) {
+			JHUCSSEDailyReportCollection allDailyReports = await GetAllDailyReportsAsync(cancellationToken).ConfigureAwait(false);
+			return allDailyReports.GetHistoricalReportByAdmin1(country, admin1) ?? throw new KeyNotFoundException($"Historical report not found for {admin1}, {country}.");
 		}
 	}
 }
