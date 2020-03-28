@@ -6,27 +6,27 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Covid19id.Models;
-using Covid19id.Services;
+using Covid19id.Apis;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Microsoft.Extensions.Configuration;
 
 namespace Covid19id.ApiClients {
-	public class KawalCovid19idClient : IKawalCovid19id {
+	public class KawalCovid19idApiClient : IKawalCovid19idApi {
 		private const string SPREADSHEET_ID = "1ma1T9hWbec1pXlwZ89WakRk-OfVUQZsOCFl4FwZxzVw";
 		private const string DAILY_STATISTICS_RANGE = "'Statistik Harian'!A2:O";
 		private const string PROVINCE_STATISTICS_RANGE = "'Kasus per Provinsi'!A3:E38";
 
 		private readonly IConfiguration _configuration;
 
-		public KawalCovid19idClient(
+		public KawalCovid19idApiClient(
 			IConfiguration configuration
 		) {
 			_configuration = configuration;
 		}
 
-		public async Task<ImmutableList<DailyStatistics>> GetDailyStatisticsAsync(CancellationToken cancellationToken) {
+		public async Task<ImmutableList<KawalCovid19idDailyStatistics>> GetDailyStatisticsAsync(CancellationToken cancellationToken) {
 			using SheetsService sheetsService = new SheetsService(new BaseClientService.Initializer {
 				ApplicationName = "Covid19id",
 				ApiKey = _configuration["GoogleSheetsApiKey"]
@@ -54,7 +54,7 @@ namespace Covid19id.ApiClients {
 						&& columns[12] is string M && int.TryParse(M, out int confirmed)
 						&& columns[13] is string N && int.TryParse(N, out int negatives)
 						&& columns[14] is string O && int.TryParse(O, out int observing)) {
-						return new DailyStatistics(
+						return new KawalCovid19idDailyStatistics(
 							date: date.Value.ToString("M/d/yy", CultureInfo.InvariantCulture),
 							newCases: newCases,
 							cases: cases,
@@ -72,11 +72,11 @@ namespace Covid19id.ApiClients {
 						return null;
 					}
 				})
-				.OfType<DailyStatistics>()
+				.OfType<KawalCovid19idDailyStatistics>()
 				.ToImmutableList();
 		}
 
-		public async Task<ImmutableList<ProvinceStatistics>> GetProvinceStatisticsAsync(CancellationToken cancellationToken) {
+		public async Task<ImmutableList<KawalCovid19idProvinceStatistics>> GetProvinceStatisticsAsync(CancellationToken cancellationToken) {
 			using SheetsService sheetsService = new SheetsService(new BaseClientService.Initializer {
 				ApplicationName = "Covid19id",
 				ApiKey = _configuration["GoogleSheetsApiKey"]
@@ -93,7 +93,7 @@ namespace Covid19id.ApiClients {
 				.Select(row => {
 					if (row.ToArray() is var columns
 						&& columns[1] is string province) {
-						return new ProvinceStatistics(
+						return new KawalCovid19idProvinceStatistics(
 							id: columns[0] is string A && int.TryParse(A, out int id) ? id : (int?)null,
 							province: province,
 							cases: columns.Length >= 3 && columns[2] is string C && int.TryParse(C, out int cases) ? cases : 0,
@@ -104,7 +104,7 @@ namespace Covid19id.ApiClients {
 						return null;
 					}
 				})
-				.OfType<ProvinceStatistics>()
+				.OfType<KawalCovid19idProvinceStatistics>()
 				.ToImmutableList();
 		}
 

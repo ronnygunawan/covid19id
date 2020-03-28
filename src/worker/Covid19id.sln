@@ -7,8 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Covid19id", "Covid19id.cspr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6F9194C9-08F1-4C32-A56F-093B3DD9D187}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
+		..\.editorconfig = ..\.editorconfig
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "..\workertests\Tests.csproj", "{EBE4F906-7E24-45B9-B843-F94D01FCA69F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +22,10 @@ Global
 		{93DD19D6-4504-4831-A017-C979A5D9265F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93DD19D6-4504-4831-A017-C979A5D9265F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93DD19D6-4504-4831-A017-C979A5D9265F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBE4F906-7E24-45B9-B843-F94D01FCA69F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBE4F906-7E24-45B9-B843-F94D01FCA69F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBE4F906-7E24-45B9-B843-F94D01FCA69F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBE4F906-7E24-45B9-B843-F94D01FCA69F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

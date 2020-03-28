@@ -4,7 +4,7 @@
     "Covid19id": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "kawalcovid19/statistik-harian",
+      "launchUrl": "jhucsse/world",
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

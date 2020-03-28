@@ -4,3 +4,4 @@ obj
 .vs
 src/worker/.config/
 src/worker/Properties
+csse_covid_19_daily_reports

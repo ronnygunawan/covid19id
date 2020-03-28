@@ -1,5 +1,5 @@
 ﻿namespace Covid19id.Models {
-	public class DailyStatistics {
+	public class KawalCovid19idDailyStatistics {
 		public string Date { get; }
 		public int NewCases { get; }
 		public int Cases { get; }
@@ -13,7 +13,7 @@
 		public int Negatives { get; }
 		public int Observing { get; }
 
-		public DailyStatistics(
+		public KawalCovid19idDailyStatistics(
 			string date,
 			int newCases,
 			int cases,

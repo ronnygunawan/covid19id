@@ -1,10 +1,12 @@
-﻿using Google.Apis.Sheets.v4;
+﻿using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Covid19id.ApiClients {
 	public static class IServiceCollectionExtensions {
 		public static void AddApiClients(this IServiceCollection services) {
-			services.AddTransient<KawalCovid19idClient>();
+			services.AddSingleton<HttpClient>();
+			services.AddTransient<KawalCovid19idApiClient>();
+			services.AddTransient<JHUCSSEApiClient>();
 		}
 	}
 }

@@ -2,29 +2,29 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Covid19id.Models;
-using Covid19id.Services;
+using Covid19id.Apis;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Covid19id.Controllers {
 	[ApiController]
 	[Route("kawalcovid19")]
 	public class KawalCovid19Controller : ControllerBase {
-		private readonly IKawalCovid19id _kawalCovid19id;
+		private readonly IKawalCovid19idApi _kawalCovid19idApi;
 
 		public KawalCovid19Controller(
-			IKawalCovid19id kawalCovid19id
+			IKawalCovid19idApi kawalCovid19idApi
 		) {
-			_kawalCovid19id = kawalCovid19id;
+			_kawalCovid19idApi = kawalCovid19idApi;
 		}
 
 		[HttpGet("statistik-harian")]
-		public async Task<ImmutableList<DailyStatistics>> GetDailyStatisticsAsync(CancellationToken cancellationToken) {
-			return await _kawalCovid19id.GetDailyStatisticsAsync(cancellationToken).ConfigureAwait(false);
+		public async Task<ImmutableList<KawalCovid19idDailyStatistics>> GetDailyStatisticsAsync(CancellationToken cancellationToken) {
+			return await _kawalCovid19idApi.GetDailyStatisticsAsync(cancellationToken).ConfigureAwait(false);
 		}
 
 		[HttpGet("statistik-provinsi")]
-		public async Task<ImmutableList<ProvinceStatistics>> GetProvinceStatisticsAsync(CancellationToken cancellationToken) {
-			return await _kawalCovid19id.GetProvinceStatisticsAsync(cancellationToken).ConfigureAwait(false);
+		public async Task<ImmutableList<KawalCovid19idProvinceStatistics>> GetProvinceStatisticsAsync(CancellationToken cancellationToken) {
+			return await _kawalCovid19idApi.GetProvinceStatisticsAsync(cancellationToken).ConfigureAwait(false);
 		}
 	}
 }
