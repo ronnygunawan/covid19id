@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 namespace Covid19id.Services {
 	public static class GeographyServices {
@@ -12,6 +12,7 @@ namespace Covid19id.Services {
 				case "CO": return "Colorado";
 				case "CT": return "Connecticut";
 				case "DE": return "Delaware";
+				case "D.C.":
 				case "DC": return "District of Columbia";
 				case "FL": return "Florida";
 				case "GA": return "Georgia";
@@ -56,7 +57,7 @@ namespace Covid19id.Services {
 				case "WI": return "Wisconsin";
 				case "WY": return "Wyoming";
 				default:
-					throw new KeyNotFoundException($"State name not found for {code}.");
+					throw new FormatException($"State name not found for {code}.");
 			}
 		}
 
@@ -70,13 +71,14 @@ namespace Covid19id.Services {
 				case "ON": return "Ontario";
 				case "MB": return "Manitoba";
 				case "SK": return "Saskatchewan";
+				case "Alberta":
 				case "AB": return "Alberta";
 				case "59": return "British Columbia";
 				case "YT": return "Yukon";
 				case "NT": return "Northwest Territories";
 				case "NU": return "Nunavut";
 				default:
-					throw new KeyNotFoundException($"State name not found for {code}.");
+					throw new FormatException($"State name not found for {code}.");
 			}
 		}
 	}

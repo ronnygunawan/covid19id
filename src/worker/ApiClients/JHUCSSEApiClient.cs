@@ -33,6 +33,12 @@ namespace Covid19id.ApiClients {
 		/// </summary>
 		private static readonly DateTime FEB_4TH_UTC = new DateTime(2020, 2, 4, 0, 0, 0, DateTimeKind.Utc);
 
+		private static readonly DateTime FEB_8TH_UTC = new DateTime(2020, 2, 8, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime FEB_21ST_UTC = new DateTime(2020, 2, 21, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime FEB_23RD_UTC = new DateTime(2020, 2, 23, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime FEB_25TH_UTC = new DateTime(2020, 2, 25, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime FEB_28TH_UTC = new DateTime(2020, 2, 28, 0, 0, 0, DateTimeKind.Utc);
+
 		/// <summary>
 		/// CSV v2 format
 		/// </summary>
@@ -132,8 +138,15 @@ namespace Covid19id.ApiClients {
 						&& country == "US") {
 						string[] admins = admin1!.Split(',');
 						if (admins.Length == 2) {
-							admin2 = admins[0];
-							admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
+							if (admins[1] == " NE (From Diamond Princess)"
+								|| admins[1] == " CA (From Diamond Princess)"
+								|| admins[1] == " TX (From Diamond Princess)") {
+								admin2 = admins[0];
+								admin1 = GeographyServices.GetUSStateName(admins[1][1..3]);
+							} else {
+								admin2 = admins[0];
+								admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
+							}
 						}
 					}
 
@@ -145,6 +158,49 @@ namespace Covid19id.ApiClients {
 							admin1 = GeographyServices.GetCanadaStateName(admins[1].Trim());
 						}
 					}
+
+					// Cruise Ship later renamed to Diamond Princess cruise ship
+					if (utcDate <= FEB_8TH_UTC
+						&& country == "Others"
+						&& admin1 == "Cruise Ship") {
+						admin1 = "Diamond Princess cruise ship";
+					}
+
+					// Admin1 entered as None instead of empty
+					if (utcDate == FEB_21ST_UTC
+						&& country == "Lebanon"
+						&& admin1 == "None") {
+						admin1 = null;
+					}
+
+					// Admin1 entered as None instead of empty
+					if (utcDate == FEB_23RD_UTC
+						&& country == "Iraq"
+						&& admin1 == "None") {
+						admin1 = null;
+					}
+
+					// Admin1 entered as None instead of empty
+					if (utcDate == FEB_25TH_UTC
+						&& country == "Austria"
+						&& admin1 == "None") {
+						admin1 = null;
+					}
+
+					// Admin1 entered as From Diamond Princess instead of empty
+					if (utcDate <= FEB_25TH_UTC
+						&& country == "Israel"
+						&& admin1 == "From Diamond Princess") {
+						admin1 = null;
+					}
+
+					// 1 Confirmed case later removed
+					if (utcDate == FEB_28TH_UTC
+						&& country == "Azerbaijan") continue;
+
+					// 1 Confirmed case later removed
+					if (utcDate == FEB_28TH_UTC
+						&& country == "North Ireland") continue;
 
 					#endregion
 
@@ -171,6 +227,7 @@ namespace Covid19id.ApiClients {
 
 					reports.Add(report);
 				}
+				FillWithZeroes(utcDate, reports);
 				return new JHUCSSEDailyReport(
 					utcDate: utcDate,
 					reportByKey: reports.ToImmutableDictionary(report => report.Key)
@@ -180,6 +237,7 @@ namespace Covid19id.ApiClients {
 				foreach (string line in csv.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1)) {
 					List<string> values = CsvParser.Split(line);
 					string? admin1 = values[0].DefaultIfWhiteSpace();
+					string? admin2 = null;
 					string country = values[1];
 					DateTime lastUpdate = DateTime.Parse(values[2], CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 					int confirmed = int.Parse(values[3], CultureInfo.InvariantCulture);
@@ -188,13 +246,50 @@ namespace Covid19id.ApiClients {
 					double latitude = double.Parse(values[6], CultureInfo.InvariantCulture);
 					double longitude = double.Parse(values[7], CultureInfo.InvariantCulture);
 
+					#region Data normalization and cleanup
+
+					try {
+						if (country == "US") {
+							string[] admins = admin1!.Split(',');
+							if (admins.Length == 2) {
+								if (admins[1] == " NE (From Diamond Princess)"
+									|| admins[1] == " CA (From Diamond Princess)"
+									|| admins[1] == " TX (From Diamond Princess)") {
+									admin2 = admins[0];
+									admin1 = GeographyServices.GetUSStateName(admins[1][1..3]);
+								} else if (admins[1] == " U.S."
+									&& admins[0] == "Virgin Islands") {
+									admin2 = admins[0];
+									admin1 = "U.S. Virgin Islands";
+								} else {
+									admin2 = admins[0];
+									admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
+								}
+							}
+						}
+
+						if (country == "Canada") {
+							string[] admins = admin1!.Split(',');
+							if (admins.Length == 2) {
+								admin2 = admins[0];
+								admin1 = GeographyServices.GetCanadaStateName(admins[1].Trim());
+							}
+						}
+					} catch (FormatException) {
+						throw;
+					}
+
+					#endregion
+
 					JHUCSSEReport report = new JHUCSSEReport(
 						key: admin1 is null
 							? country
-							: $"{admin1}, {country}",
+							: admin2 is null
+								? $"{admin1}, {country}"
+								: $"{admin2}, {admin1}, {country}",
 						country: country,
 						admin1: admin1,
-						admin2: null,
+						admin2: admin2,
 						fips: null,
 						lastUpdate: lastUpdate,
 						latitude: latitude,
@@ -209,6 +304,7 @@ namespace Covid19id.ApiClients {
 
 					reports.Add(report);
 				}
+				FillWithZeroes(utcDate, reports);
 				return new JHUCSSEDailyReport(
 					utcDate: utcDate,
 					reportByKey: reports.ToImmutableDictionary(report => report.Key)
@@ -293,10 +389,38 @@ namespace Covid19id.ApiClients {
 						throw;
 					}
 				}
+				FillWithZeroes(utcDate, reports);
 				return new JHUCSSEDailyReport(
 					utcDate: utcDate,
 					reportByKey: reports.ToImmutableDictionary(report => report.Key)
 				);
+			}
+		}
+
+		private void FillWithZeroes(DateTime utcDate, List<JHUCSSEReport> reports) {
+			// Camp Ashland quarantined Diamond Princess passengers
+			FillWithZeroes(utcDate, FEB_21ST_UTC, reports, "US", "Nebraska", "Ashland", null, null, null);
+		}
+
+		private void FillWithZeroes(DateTime utcDate, DateTime minUtcDate, List<JHUCSSEReport> reports, string country, string? admin1, string? admin2, string? fips, double? latitude, double? longitude) {
+			if (utcDate >= minUtcDate
+				&& !reports.Any(report => report.Country == country && report.Admin1 == admin1 && report.Admin2 == admin2)) {
+				reports.Add(new JHUCSSEReport(
+					key: $"{admin2}, {admin1}, {country}",
+					country: country,
+					admin1: admin1,
+					admin2: admin2,
+					fips: fips,
+					lastUpdate: utcDate,
+					latitude: latitude,
+					longitude: longitude,
+					confirmed: 0,
+					deaths: 0,
+					recovered: 0,
+					active: null,
+					reportVersion: JHUCSSEReportVersion.AddedAdmin2FIPSActive,
+					parserVersion: PARSER_VERSION
+				));
 			}
 		}
 	}
