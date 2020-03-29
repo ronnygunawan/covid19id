@@ -53,6 +53,14 @@ namespace Covid19id.ApiClients {
 		private static readonly DateTime MARCH_8TH_UTC = new DateTime(2020, 3, 8, 0, 0, 0, DateTimeKind.Utc);
 
 		/// <summary>
+		/// Some country names were briefly changed on March 10th
+		/// </summary>
+		private static readonly DateTime MARCH_10TH_UTC = new DateTime(2020, 3, 10, 0, 0, 0, DateTimeKind.Utc);
+
+		private static readonly DateTime MARCH_11TH_UTC = new DateTime(2020, 3, 11, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_12TH_UTC = new DateTime(2020, 3, 12, 0, 0, 0, DateTimeKind.Utc);
+
+		/// <summary>
 		/// CSV v3 format
 		/// </summary>
 		private static readonly DateTime MARCH_22ND_UTC = new DateTime(2020, 3, 22, 0, 0, 0, DateTimeKind.Utc);
@@ -224,6 +232,29 @@ namespace Covid19id.ApiClients {
 					if (utcDate == FEB_28TH_UTC
 						&& country == "North Ireland") continue;
 
+					// Hong Kong later moved into China dataset
+					if (country == "Hong Kong"
+						&& admin1 == "Hong Kong") {
+						country = "China";
+					}
+
+					// Macau later moved into China dataset
+					if (country == "Macau"
+						&& admin1 == "Macau") {
+						country = "China";
+					}
+
+					// Taiwan later moved into China dataset
+					if (country == "Taiwan"
+						&& admin1 == "Taiwan") {
+						country = "China";
+					}
+
+					// Mainland China later renamed to China
+					if (country == "Mainland China") {
+						country = "China";
+					}
+
 					#endregion
 
 					JHUCSSEReport report = new JHUCSSEReport(
@@ -287,6 +318,9 @@ namespace Covid19id.ApiClients {
 									admin2 = admins[0].Trim();
 									admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
 								}
+								if (admin2 == "Unassigned Location") {
+									admin2 = null;
+								}
 							}
 						}
 
@@ -310,6 +344,55 @@ namespace Covid19id.ApiClients {
 								);
 								continue;
 							}
+						}
+
+						// Duplicate entries on March 8th
+						if (utcDate == MARCH_8TH_UTC
+							&& country == "Republic of Ireland") {
+							continue;
+						}
+
+						// Hong Kong later moved into China dataset
+						if ((country == "Hong Kong" || country == "Hong Kong SAR")
+							&& admin1 == "Hong Kong") {
+							country = "China";
+						}
+
+						// Macau later moved into China dataset
+						if ((country == "Macau" || country == "Macao SAR")
+							&& admin1 == "Macau") {
+							country = "China";
+						}
+
+						// Taiwan later moved into China dataset
+						if ((country == "Taiwan" || country == "Taipei and environs")
+							&& admin1 == "Taiwan") {
+							country = "China";
+						}
+
+						// Duplicate entries for Gansu on March 11th and 12th
+						if ((utcDate == MARCH_11TH_UTC || utcDate == MARCH_12TH_UTC)
+							&& country == "Mainland China"
+							&& admin1 == "Gansu") continue;
+
+						// Duplicate entries for Hebei on March 11th and 12th
+						if ((utcDate == MARCH_11TH_UTC || utcDate == MARCH_12TH_UTC)
+							&& country == "Mainland China"
+							&& admin1 == "Hebei") continue;
+
+						// Some country names were briefly changed on March 10th
+						if (utcDate == MARCH_10TH_UTC) {
+							if (country == "Iran (Islamic Republic of)") country = "Iran";
+							else if (country == "Republic of Moldova") country = "Moldova";
+							else if (country == "occupied Palestinian territory") country = "Palestine";
+							else if (country == "Russian Federation") country = "Russia";
+							else if (country == "Republic of Korea") country = "South Korea";
+							else if (country == "Saint Martin") country = "St. Martin";
+						}
+
+						// Mainland China later renamed to China
+						if (country == "Mainland China") {
+							country = "China";
 						}
 					} catch (FormatException) {
 						throw;
@@ -341,10 +424,14 @@ namespace Covid19id.ApiClients {
 					reports.Add(report);
 				}
 				FillWithZeroes(utcDate, reports);
-				return new JHUCSSEDailyReport(
-					utcDate: utcDate,
-					reportByKey: reports.ToImmutableDictionary(report => report.Key)
-				);
+				try {
+					return new JHUCSSEDailyReport(
+						utcDate: utcDate,
+						reportByKey: reports.ToImmutableDictionary(report => report.Key)
+					);
+				} catch (Exception exc) {
+					throw;
+				}
 			} else {
 				List<JHUCSSEReport> reports = new List<JHUCSSEReport>();
 				foreach (string line in csv.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1)) {
@@ -426,10 +513,14 @@ namespace Covid19id.ApiClients {
 					}
 				}
 				FillWithZeroes(utcDate, reports);
-				return new JHUCSSEDailyReport(
-					utcDate: utcDate,
-					reportByKey: reports.ToImmutableDictionary(report => report.Key)
-				);
+				try {
+					return new JHUCSSEDailyReport(
+						utcDate: utcDate,
+						reportByKey: reports.ToImmutableDictionary(report => report.Key)
+					);
+				} catch (Exception exc) {
+					throw;
+				}
 			}
 		}
 
@@ -481,6 +572,69 @@ namespace Covid19id.ApiClients {
 
 			// Norfolk County, MA was removed on March 8th
 			FillWithZeroes(utcDate, MARCH_8TH_UTC, reports, "US", "Massachusetts", "Norfolk County", null, null, null);
+
+			// Maricopa County, AZ was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "Arizona", "Maricopa County", null, 33.2918, -112.4291);
+
+			// Pinal County, AZ was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "Arizona", "Pinal County", null, 32.8162, -111.2845);
+
+			// Alameda County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Alameda County", null, 37.6017, -121.7195);
+
+			// Contra Costa County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Contra Costa County", null, 37.8534, -121.9018);
+
+			// Fresno County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Fresno County", null, 36.9859, -119.2321);
+
+			// Humboldt County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Humboldt County", null, 40.7450, -123.8695);
+
+			// Los Angeles, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Los Angeles", null, 34.0522, -118.2437);
+
+			// Madera County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Madera County", null, 37.2519, -119.6963);
+
+			// Orange County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Orange County", null, 33.7879, -117.8531);
+
+			// Placer County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Placer County", null, 39.0916, -120.8039);
+
+			// Riverside County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Riverside County", null, 33.9533, -117.3961);
+
+			// Sacramento County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Sacramento County", null, 38.4747, -121.3542);
+
+			// San Benito, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "San Benito", null, 36.5761, -120.9876);
+
+			// San Diego County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "San Diego County", null, 32.7157, -117.1611);
+
+			// San Francisco County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "San Francisco County", null, 37.7749, -122.4194);
+
+			// San Mateo, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "San Mateo", null, 37.5630, -122.3255);
+
+			// Santa Clara County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Santa Clara County", null, 37.3541, -121.9552);
+
+			// Shasta County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Shasta County", null, 40.7909, -121.8474);
+
+			// Sonoma County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Sonoma County", null, 38.5780, -122.9888);
+
+			// Travis, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Travis", null, 38.2721, -121.9399);
+
+			// Yolo County, CA was removed on March 10th
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Yolo County", null, 38.7646, -121.9018);
 		}
 
 		private void FillWithZeroes(DateTime utcDate, DateTime minUtcDate, List<JHUCSSEReport> reports, string country, string? admin1, string? admin2, string? fips, double? latitude, double? longitude) {

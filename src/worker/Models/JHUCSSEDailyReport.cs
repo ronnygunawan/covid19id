@@ -72,11 +72,10 @@ namespace Covid19id.Models {
 						   select new Admin1(
 							   name: a1.Key,
 							   admin2s: a1.Any(report => report.Admin2 != null)
-								   ? a1.All(report => report.Admin2 != null)
-									   ? (from report in a1
-										  orderby report.Admin2
-										  select new Admin2(report.Admin2!)).ToImmutableList()
-									   : throw new InvalidOperationException($"Admin1 {a1.Key} of {c.Key} contains entry with null Admin2 in {UtcDate:MM-dd-yyyy}.csv.")
+								   ? (from report in a1
+									  where report.Admin2 != null
+									  orderby report.Admin2
+									  select new Admin2(report.Admin2!)).ToImmutableList()
 								   : null
 							  )).ToImmutableList()
 						: throw new InvalidOperationException($"Country {c.Key} contains entry with null Admin1 in {UtcDate:MM-dd-yyyy}.csv.")
