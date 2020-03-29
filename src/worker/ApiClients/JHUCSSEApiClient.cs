@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection.PortableExecutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Covid19id.Apis;
@@ -43,6 +44,13 @@ namespace Covid19id.ApiClients {
 		/// CSV v2 format
 		/// </summary>
 		private static readonly DateTime MARCH_1ST_UTC = new DateTime(2020, 3, 1, 0, 0, 0, DateTimeKind.Utc);
+
+		private static readonly DateTime MARCH_2ND_UTC = new DateTime(2020, 3, 2, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_3RD_UTC = new DateTime(2020, 3, 3, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_4TH_UTC = new DateTime(2020, 3, 4, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_6TH_UTC = new DateTime(2020, 3, 6, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_7TH_UTC = new DateTime(2020, 3, 7, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_8TH_UTC = new DateTime(2020, 3, 8, 0, 0, 0, DateTimeKind.Utc);
 
 		/// <summary>
 		/// CSV v3 format
@@ -141,10 +149,10 @@ namespace Covid19id.ApiClients {
 							if (admins[1] == " NE (From Diamond Princess)"
 								|| admins[1] == " CA (From Diamond Princess)"
 								|| admins[1] == " TX (From Diamond Princess)") {
-								admin2 = admins[0];
+								admin2 = admins[0].Trim();
 								admin1 = GeographyServices.GetUSStateName(admins[1][1..3]);
 							} else {
-								admin2 = admins[0];
+								admin2 = admins[0].Trim();
 								admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
 							}
 						}
@@ -154,8 +162,22 @@ namespace Covid19id.ApiClients {
 						&& country == "Canada") {
 						string[] admins = admin1!.Split(',');
 						if (admins.Length == 2) {
-							admin2 = admins[0];
+							//admin2 = admins[0].Trim();
+							admin2 = null; // Admin2 later unused in Canada
 							admin1 = GeographyServices.GetCanadaStateName(admins[1].Trim());
+						}
+
+						// Admin2 later unused in Canada, multiple entries from same Admin1 will be merged
+						if (reports.SingleOrDefault(report => report.Country == "Canada"
+							&& report.Admin1 == admin1
+							&& report.Admin2 == null) is JHUCSSEReport existingReport) {
+							existingReport.IncrementStats(
+								confirmed: confirmed,
+								deaths: deaths,
+								recovered: recovered,
+								active: null
+							);
+							continue;
 						}
 					}
 
@@ -255,14 +277,14 @@ namespace Covid19id.ApiClients {
 								if (admins[1] == " NE (From Diamond Princess)"
 									|| admins[1] == " CA (From Diamond Princess)"
 									|| admins[1] == " TX (From Diamond Princess)") {
-									admin2 = admins[0];
+									admin2 = admins[0].Trim();
 									admin1 = GeographyServices.GetUSStateName(admins[1][1..3]);
 								} else if (admins[1] == " U.S."
 									&& admins[0] == "Virgin Islands") {
-									admin2 = admins[0];
+									admin2 = admins[0].Trim();
 									admin1 = "U.S. Virgin Islands";
 								} else {
-									admin2 = admins[0];
+									admin2 = admins[0].Trim();
 									admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
 								}
 							}
@@ -271,8 +293,22 @@ namespace Covid19id.ApiClients {
 						if (country == "Canada") {
 							string[] admins = admin1!.Split(',');
 							if (admins.Length == 2) {
-								admin2 = admins[0];
+								//admin2 = admins[0].Trim();
+								admin2 = null; // Admin2 later unused in Canada
 								admin1 = GeographyServices.GetCanadaStateName(admins[1].Trim());
+							}
+
+							// Admin2 later unused in Canada, multiple entries from same Admin1 will be merged
+							if (reports.SingleOrDefault(report => report.Country == "Canada"
+								&& report.Admin1 == admin1
+								&& report.Admin2 == null) is JHUCSSEReport existingReport) {
+								existingReport.IncrementStats(
+									confirmed: confirmed,
+									deaths: deaths,
+									recovered: recovered,
+									active: null
+								);
+								continue;
 							}
 						}
 					} catch (FormatException) {
@@ -400,6 +436,51 @@ namespace Covid19id.ApiClients {
 		private void FillWithZeroes(DateTime utcDate, List<JHUCSSEReport> reports) {
 			// Camp Ashland quarantined Diamond Princess passengers
 			FillWithZeroes(utcDate, FEB_21ST_UTC, reports, "US", "Nebraska", "Ashland", null, null, null);
+
+			// Chicago was removed on March 2nd
+			FillWithZeroes(utcDate, MARCH_2ND_UTC, reports, "US", "Illinois", "Chicago", null, null, null);
+
+			// Seattle was removed on March 2nd
+			FillWithZeroes(utcDate, MARCH_2ND_UTC, reports, "US", "Washington", "Seattle", null, null, null);
+
+			// Portland was removed on March 3rd
+			FillWithZeroes(utcDate, MARCH_3RD_UTC, reports, "US", "Oregon", "Portland", null, null, null);
+
+			// Orange was removed on March 4th
+			FillWithZeroes(utcDate, MARCH_4TH_UTC, reports, "US", "California", "Orange", "06059", 33.70147516, -117.76459979999998);
+
+			// Boston was removed on March 6th
+			FillWithZeroes(utcDate, MARCH_6TH_UTC, reports, "US", "Massachusetts", "Boston", null, null, null);
+
+			// New York City was removed on March 6th
+			FillWithZeroes(utcDate, MARCH_6TH_UTC, reports, "US", "New York", "New York City", "36061", 40.76727260000001, -73.97152637);
+
+			// Queens County, NY was removed on March 6th
+			FillWithZeroes(utcDate, MARCH_6TH_UTC, reports, "US", "New York", "Queens County", null, null, null);
+
+			// Tempe, AZ was removed on March 7th
+			FillWithZeroes(utcDate, MARCH_7TH_UTC, reports, "US", "Arizona", "Tempe", null, null, null);
+
+			// Berkeley, CA was removed on March 7th
+			FillWithZeroes(utcDate, MARCH_7TH_UTC, reports, "US", "California", "Berkeley", null, null, null);
+
+			// Santa Clara, CA was removed on March 7th
+			FillWithZeroes(utcDate, MARCH_7TH_UTC, reports, "US", "California", "Santa Clara", "06085", 37.23104908, -121.6970462);
+
+			// Norwell County, MA was removed on March 7th
+			FillWithZeroes(utcDate, MARCH_7TH_UTC, reports, "US", "Massachusetts", "Norwell County", null, null, null);
+
+			// Providence, RI was removed on March 7th
+			FillWithZeroes(utcDate, MARCH_7TH_UTC, reports, "US", "Rhode Island", "Providence", "44007", 41.87064746, -71.57753536);
+
+			// Santa Cruz County, CA was removed on March 8th
+			FillWithZeroes(utcDate, MARCH_8TH_UTC, reports, "US", "California", "Santa Cruz County", null, null, null);
+
+			// Floyd County, GA was removed on March 8th
+			FillWithZeroes(utcDate, MARCH_8TH_UTC, reports, "US", "Georgia", "Floyd County", null, null, null);
+
+			// Norfolk County, MA was removed on March 8th
+			FillWithZeroes(utcDate, MARCH_8TH_UTC, reports, "US", "Massachusetts", "Norfolk County", null, null, null);
 		}
 
 		private void FillWithZeroes(DateTime utcDate, DateTime minUtcDate, List<JHUCSSEReport> reports, string country, string? admin1, string? admin2, string? fips, double? latitude, double? longitude) {

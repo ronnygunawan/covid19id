@@ -22,7 +22,7 @@ namespace Tests.JHUCSSE {
 		}
 
 		[Fact]
-		public async Task NothingInHistoricalDataHasBeenRenamedOrRemoved() {
+		public async Task NoRegressionInHistoricalData() {
 			JHUCSSEServices jhucsseServices = _fixture.ServiceProvider.GetRequiredService<JHUCSSEServices>();
 			JHUCSSEDailyReportCollection dailyReportCollection = await jhucsseServices.GetAllDailyReportsAsync(CancellationToken.None);
 

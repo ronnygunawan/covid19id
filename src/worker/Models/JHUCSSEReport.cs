@@ -30,16 +30,16 @@ namespace Covid19id.Models {
 		public double? Longitude { get; }
 
 		[JsonProperty("confirmed")]
-		public int Confirmed { get; }
+		public int Confirmed { get; private set; }
 
 		[JsonProperty("deaths")]
-		public int Deaths { get; }
+		public int Deaths { get; private set; }
 
 		[JsonProperty("recovered")]
-		public int Recovered { get; }
+		public int Recovered { get; private set; }
 
 		[JsonProperty("active", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
-		public int? Active { get; }
+		public int? Active { get; private set; }
 
 		[JsonProperty("reportVersion")]
 		public JHUCSSEReportVersion ReportVersion { get; }
@@ -78,6 +78,19 @@ namespace Covid19id.Models {
 			Active = active;
 			ReportVersion = reportVersion;
 			ParserVersion = parserVersion;
+		}
+
+		public void IncrementStats(int confirmed, int deaths, int recovered, int? active) {
+			Confirmed += confirmed;
+			Deaths += deaths;
+			Recovered += recovered;
+			if (active.HasValue) {
+				if (Active.HasValue) {
+					Active += active.Value;
+				} else {
+					Active = active.Value;
+				}
+			}
 		}
 	}
 }
