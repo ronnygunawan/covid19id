@@ -5,6 +5,9 @@ using Newtonsoft.Json.Converters;
 namespace Covid19id.Models {
 	[JsonObject(MemberSerialization.OptIn)]
 	public class JHUCSSEReport {
+		[JsonProperty("utcDate")]
+		public DateTime UtcDate { get; }
+
 		[JsonProperty("key")]
 		public string Key { get; }
 
@@ -49,6 +52,7 @@ namespace Covid19id.Models {
 
 		[JsonConstructor]
 		public JHUCSSEReport(
+			DateTime utcDate,
 			string key,
 			string country,
 			string? admin1,
@@ -64,6 +68,7 @@ namespace Covid19id.Models {
 			JHUCSSEReportVersion reportVersion,
 			int parserVersion
 		) {
+			UtcDate = utcDate;
 			Key = key;
 			Country = country;
 			Admin1 = admin1;

@@ -7,13 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Reflection.PortableExecutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Covid19id.Apis;
 using Covid19id.Extensions;
 using Covid19id.Models;
 using Covid19id.Services;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Covid19id.ApiClients {
 	public class JHUCSSEApiClient : IJHUCSSEApi {
@@ -51,6 +51,7 @@ namespace Covid19id.ApiClients {
 		private static readonly DateTime MARCH_6TH_UTC = new DateTime(2020, 3, 6, 0, 0, 0, DateTimeKind.Utc);
 		private static readonly DateTime MARCH_7TH_UTC = new DateTime(2020, 3, 7, 0, 0, 0, DateTimeKind.Utc);
 		private static readonly DateTime MARCH_8TH_UTC = new DateTime(2020, 3, 8, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_9TH_UTC = new DateTime(2020, 3, 9, 0, 0, 0, DateTimeKind.Utc);
 
 		/// <summary>
 		/// Some country names were briefly changed on March 10th
@@ -66,11 +67,22 @@ namespace Covid19id.ApiClients {
 		private static readonly DateTime MARCH_22ND_UTC = new DateTime(2020, 3, 22, 0, 0, 0, DateTimeKind.Utc);
 
 		private readonly HttpClient _httpClient;
+		private readonly IMemoryCache _memoryCache;
 
 		public JHUCSSEApiClient(
-			HttpClient httpClient
+			HttpClient httpClient,
+			IMemoryCache memoryCache
 		) {
 			_httpClient = httpClient;
+			_memoryCache = memoryCache;
+		}
+
+		private async Task<JHUCSSEDailyReport> GetMarch9thDailyReportAsync(CancellationToken cancellationToken) {
+			return await _memoryCache.GetOrCreateAsync("JHUCSSEMarch9thDailyReport", async entry => {
+				JHUCSSEDailyReport dailyReport = await GetDailyReportAsync(MARCH_9TH_UTC, cancellationToken).ConfigureAwait(false);
+				entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+				return dailyReport;
+			}).ConfigureAwait(false);
 		}
 
 		public async Task<JHUCSSEDailyReport> GetDailyReportAsync(DateTime utcDate, CancellationToken cancellationToken) {
@@ -164,6 +176,9 @@ namespace Covid19id.ApiClients {
 								admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
 							}
 						}
+						if (admin1 == "Unassigned Location (From Diamond Princess)") {
+							admin1 = "Diamond Princess";
+						}
 					}
 
 					if (utcDate >= FEB_4TH_UTC
@@ -244,10 +259,11 @@ namespace Covid19id.ApiClients {
 						country = "China";
 					}
 
-					// Taiwan later moved into China dataset
+					// Taiwan was renamed multiple times
 					if (country == "Taiwan"
 						&& admin1 == "Taiwan") {
-						country = "China";
+						country = "Taiwan";
+						admin1 = null;
 					}
 
 					// Mainland China later renamed to China
@@ -258,6 +274,7 @@ namespace Covid19id.ApiClients {
 					#endregion
 
 					JHUCSSEReport report = new JHUCSSEReport(
+						utcDate: utcDate,
 						key: admin1 is null
 							? country
 							: admin2 is null
@@ -280,7 +297,7 @@ namespace Covid19id.ApiClients {
 
 					reports.Add(report);
 				}
-				FillWithZeroes(utcDate, reports);
+				await FillWithZeroesAsync(utcDate, reports, cancellationToken).ConfigureAwait(false);
 				return new JHUCSSEDailyReport(
 					utcDate: utcDate,
 					reportByKey: reports.ToImmutableDictionary(report => report.Key)
@@ -314,13 +331,20 @@ namespace Covid19id.ApiClients {
 									&& admins[0] == "Virgin Islands") {
 									admin2 = admins[0].Trim();
 									admin1 = "U.S. Virgin Islands";
+								} else if (admins[0] == "Unassigned Location"
+									|| admins[0] == "Unknown Location") {
+									admin2 = null;
+									admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
 								} else {
 									admin2 = admins[0].Trim();
 									admin1 = GeographyServices.GetUSStateName(admins[1].Trim());
 								}
-								if (admin2 == "Unassigned Location") {
-									admin2 = null;
-								}
+							}
+							if (admin1 == "Grand Princess Cruise Ship") {
+								admin1 = "Grand Princess";
+							}
+							if (admin1 == "Unassigned Location (From Diamond Princess)") {
+								admin1 = "Diamond Princess";
 							}
 						}
 
@@ -364,10 +388,35 @@ namespace Covid19id.ApiClients {
 							country = "China";
 						}
 
-						// Taiwan later moved into China dataset
+						// Taiwan was renamed multiple times
 						if ((country == "Taiwan" || country == "Taipei and environs")
 							&& admin1 == "Taiwan") {
-							country = "China";
+							country = "Taiwan";
+							admin1 = null;
+						} else if (country == "Taiwan*") {
+							country = "Taiwan";
+						}
+
+						// Czech Republic later renamed to Czechia
+						if (country == "Czech Republic") {
+							country = "Czechia";
+						}
+
+						// Faroe Islands was not identified as Admin1 of Denmark
+						if (country == "Faroe Islands") {
+							country = "Denmark";
+							admin1 = "Faroe Islands";
+						}
+
+						if (country == "Denmark"
+							&& admin1 == null) {
+							admin1 = "Denmark";
+						}
+
+						// Gibraltar was not identified as Admin1 of United Kingdom
+						if (country == "Gibraltar") {
+							country = "United Kingdom";
+							admin1 = "Gibraltar";
 						}
 
 						// Duplicate entries for Gansu on March 11th and 12th
@@ -388,6 +437,11 @@ namespace Covid19id.ApiClients {
 							else if (country == "Russian Federation") country = "Russia";
 							else if (country == "Republic of Korea") country = "South Korea";
 							else if (country == "Saint Martin") country = "St. Martin";
+							else if (country == "Viet Nam") country = "Vietnam";
+							else if (country == "Channel Islands") {
+								country = "United Kingdom";
+								admin1 = "Channel Islands";
+							}
 						}
 
 						// Mainland China later renamed to China
@@ -401,6 +455,7 @@ namespace Covid19id.ApiClients {
 					#endregion
 
 					JHUCSSEReport report = new JHUCSSEReport(
+						utcDate: utcDate,
 						key: admin1 is null
 							? country
 							: admin2 is null
@@ -423,7 +478,7 @@ namespace Covid19id.ApiClients {
 
 					reports.Add(report);
 				}
-				FillWithZeroes(utcDate, reports);
+				await FillWithZeroesAsync(utcDate, reports, cancellationToken).ConfigureAwait(false);
 				try {
 					return new JHUCSSEDailyReport(
 						utcDate: utcDate,
@@ -483,9 +538,15 @@ namespace Covid19id.ApiClients {
 							&& recovered == 0
 							&& active == 0) continue;
 
+						// Taiwan was renamed multiple times
+						if (country == "Taiwan*") {
+							country = "Taiwan";
+						}
+
 						#endregion
 
 						JHUCSSEReport report = new JHUCSSEReport(
+						utcDate: utcDate,
 							key: key,
 							country: country,
 							admin1: admin1,
@@ -512,7 +573,7 @@ namespace Covid19id.ApiClients {
 						throw;
 					}
 				}
-				FillWithZeroes(utcDate, reports);
+				await FillWithZeroesAsync(utcDate, reports, cancellationToken).ConfigureAwait(false);
 				try {
 					return new JHUCSSEDailyReport(
 						utcDate: utcDate,
@@ -524,7 +585,7 @@ namespace Covid19id.ApiClients {
 			}
 		}
 
-		private void FillWithZeroes(DateTime utcDate, List<JHUCSSEReport> reports) {
+		private async Task FillWithZeroesAsync(DateTime utcDate, List<JHUCSSEReport> reports, CancellationToken cancellationToken) {
 			// Camp Ashland quarantined Diamond Princess passengers
 			FillWithZeroes(utcDate, FEB_21ST_UTC, reports, "US", "Nebraska", "Ashland", null, null, null);
 
@@ -573,74 +634,25 @@ namespace Covid19id.ApiClients {
 			// Norfolk County, MA was removed on March 8th
 			FillWithZeroes(utcDate, MARCH_8TH_UTC, reports, "US", "Massachusetts", "Norfolk County", null, null, null);
 
-			// Maricopa County, AZ was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "Arizona", "Maricopa County", null, 33.2918, -112.4291);
+			// A lot of US Admin2s were removed on March 10th
+			if (utcDate >= MARCH_10TH_UTC)  {
+				JHUCSSEDailyReport march9thDailyReport = await GetMarch9thDailyReportAsync(cancellationToken).ConfigureAwait(false);
+				foreach (string admin1 in march9thDailyReport.GetAdmin1Names("US")) {
+					foreach (string admin2 in march9thDailyReport.GetAdmin2Names("US", admin1)) {
+						JHUCSSEReport report = march9thDailyReport[$"{admin2}, {admin1}, US"];
+						FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", admin1, admin2, null, report.Latitude, report.Longitude);
+					}
+				}
+			}
 
-			// Pinal County, AZ was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "Arizona", "Pinal County", null, 32.8162, -111.2845);
-
-			// Alameda County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Alameda County", null, 37.6017, -121.7195);
-
-			// Contra Costa County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Contra Costa County", null, 37.8534, -121.9018);
-
-			// Fresno County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Fresno County", null, 36.9859, -119.2321);
-
-			// Humboldt County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Humboldt County", null, 40.7450, -123.8695);
-
-			// Los Angeles, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Los Angeles", null, 34.0522, -118.2437);
-
-			// Madera County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Madera County", null, 37.2519, -119.6963);
-
-			// Orange County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Orange County", null, 33.7879, -117.8531);
-
-			// Placer County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Placer County", null, 39.0916, -120.8039);
-
-			// Riverside County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Riverside County", null, 33.9533, -117.3961);
-
-			// Sacramento County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Sacramento County", null, 38.4747, -121.3542);
-
-			// San Benito, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "San Benito", null, 36.5761, -120.9876);
-
-			// San Diego County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "San Diego County", null, 32.7157, -117.1611);
-
-			// San Francisco County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "San Francisco County", null, 37.7749, -122.4194);
-
-			// San Mateo, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "San Mateo", null, 37.5630, -122.3255);
-
-			// Santa Clara County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Santa Clara County", null, 37.3541, -121.9552);
-
-			// Shasta County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Shasta County", null, 40.7909, -121.8474);
-
-			// Sonoma County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Sonoma County", null, 38.5780, -122.9888);
-
-			// Travis, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Travis", null, 38.2721, -121.9399);
-
-			// Yolo County, CA was removed on March 10th
-			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "US", "California", "Yolo County", null, 38.7646, -121.9018);
+			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "Vatican City", null, null, null, 41.9029, 12.4534);
 		}
 
 		private void FillWithZeroes(DateTime utcDate, DateTime minUtcDate, List<JHUCSSEReport> reports, string country, string? admin1, string? admin2, string? fips, double? latitude, double? longitude) {
 			if (utcDate >= minUtcDate
 				&& !reports.Any(report => report.Country == country && report.Admin1 == admin1 && report.Admin2 == admin2)) {
 				reports.Add(new JHUCSSEReport(
+					utcDate: utcDate,
 					key: $"{admin2}, {admin1}, {country}",
 					country: country,
 					admin1: admin1,
