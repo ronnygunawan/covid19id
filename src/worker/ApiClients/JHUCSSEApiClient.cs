@@ -60,6 +60,12 @@ namespace Covid19id.ApiClients {
 
 		private static readonly DateTime MARCH_11TH_UTC = new DateTime(2020, 3, 11, 0, 0, 0, DateTimeKind.Utc);
 		private static readonly DateTime MARCH_12TH_UTC = new DateTime(2020, 3, 12, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_13TH_UTC = new DateTime(2020, 3, 13, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_14TH_UTC = new DateTime(2020, 3, 14, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_16TH_UTC = new DateTime(2020, 3, 16, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_18TH_UTC = new DateTime(2020, 3, 18, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_19TH_UTC = new DateTime(2020, 3, 19, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_21ST_UTC = new DateTime(2020, 3, 21, 0, 0, 0, DateTimeKind.Utc);
 
 		/// <summary>
 		/// CSV v3 format
@@ -204,11 +210,23 @@ namespace Covid19id.ApiClients {
 						}
 					}
 
+					if (country == "Australia") {
+						if (admin1 == "From Diamond Princess") {
+							admin1 = "Diamond Princess";
+						}
+					}
+
+					if (country == "Others") {
+						if (admin1 == "Diamond Princess cruise ship") {
+							admin1 = "Diamond Princess";
+						}
+					}
+
 					// Cruise Ship later renamed to Diamond Princess cruise ship
 					if (utcDate <= FEB_8TH_UTC
 						&& country == "Others"
 						&& admin1 == "Cruise Ship") {
-						admin1 = "Diamond Princess cruise ship";
+						admin1 = "Diamond Princess";
 					}
 
 					// Admin1 entered as None instead of empty
@@ -271,6 +289,11 @@ namespace Covid19id.ApiClients {
 						country = "China";
 					}
 
+					if (country == "UK") {
+						country = "United Kingdom";
+						admin1 = "United Kingdom";
+					}
+
 					#endregion
 
 					JHUCSSEReport report = new JHUCSSEReport(
@@ -320,6 +343,9 @@ namespace Covid19id.ApiClients {
 
 					try {
 						if (country == "US") {
+							// Duplicate entries
+							if ((utcDate == MARCH_18TH_UTC || utcDate == MARCH_19TH_UTC)
+								&& admin1 == "United States Virgin Islands") continue;
 							string[] admins = admin1!.Split(',');
 							if (admins.Length == 2) {
 								if (admins[1] == " NE (From Diamond Princess)"
@@ -329,8 +355,7 @@ namespace Covid19id.ApiClients {
 									admin1 = GeographyServices.GetUSStateName(admins[1][1..3]);
 								} else if (admins[1] == " U.S."
 									&& admins[0] == "Virgin Islands") {
-									admin2 = admins[0].Trim();
-									admin1 = "U.S. Virgin Islands";
+									admin1 = "Virgin Islands";
 								} else if (admins[0] == "Unassigned Location"
 									|| admins[0] == "Unknown Location") {
 									admin2 = null;
@@ -345,6 +370,9 @@ namespace Covid19id.ApiClients {
 							}
 							if (admin1 == "Unassigned Location (From Diamond Princess)") {
 								admin1 = "Diamond Princess";
+							}
+							if (admin1 == "United States Virgin Islands") {
+								admin1 = "Virgin Islands";
 							}
 						}
 
@@ -367,6 +395,24 @@ namespace Covid19id.ApiClients {
 									active: null
 								);
 								continue;
+							}
+						}
+
+						if (country == "Australia") {
+							if (admin1 == "From Diamond Princess") {
+								admin1 = "Diamond Princess";
+							}
+						}
+
+						if (country == "Others") {
+							if (admin1 == "Diamond Princess cruise ship") {
+								admin1 = "Diamond Princess";
+							}
+						}
+
+						if (country == "Cruise Ship") {
+							if (admin1 == "Diamond Princess") {
+								country = "Others";
 							}
 						}
 
@@ -408,6 +454,16 @@ namespace Covid19id.ApiClients {
 							admin1 = "Faroe Islands";
 						}
 
+						// Duplicate entries
+						if ((utcDate >= MARCH_19TH_UTC && utcDate <= MARCH_21ST_UTC)
+							&& country == "Greenland") continue;
+
+						// Greenland was not identified as Admin1 of Denmark
+						if (country == "Greenland") {
+							country = "Denmark";
+							admin1 = "Greenland";
+						}
+
 						if (country == "Denmark"
 							&& admin1 == null) {
 							admin1 = "Denmark";
@@ -417,6 +473,122 @@ namespace Covid19id.ApiClients {
 						if (country == "Gibraltar") {
 							country = "United Kingdom";
 							admin1 = "Gibraltar";
+						}
+
+						// Caymand Islands was not identified as Admin1 of United Kingdom
+						if (country == "Cayman Islands") {
+							country = "United Kingdom";
+							admin1 = "Cayman Islands";
+						}
+
+						// Shorten as Palestine
+						if (country == "occupied Palestinian territory") {
+							country = "Palestine";
+						}
+
+						// Saint Barthelemy was not identified as Admin1 of France
+						if (country == "Saint Barthelemy") {
+							country = "France";
+							admin1 = "Saint Barthelemy";
+						}
+
+						// Duplicate entries
+						if ((utcDate >= MARCH_16TH_UTC && utcDate <= MARCH_21ST_UTC)
+							&& country == "France"
+							&& admin1 == "Guadeloupe") continue;
+
+						// Guadeloupe was not identified as Admin1 of France
+						if (country == "Guadeloupe") {
+							country = "France";
+							admin1 = "Guadeloupe";
+						}
+
+						if (country == "France"
+							&& admin1 == null) {
+							admin1 = "France";
+						}
+
+						// Typo: Fench Guiana
+						if (country == "France"
+							&& admin1 == "Fench Guiana") {
+							admin1 = "French Guiana";
+						}
+
+						// Duplicate entries
+						if (utcDate == MARCH_14TH_UTC
+							&& country == "French Guiana") continue;
+
+						// Duplicate entries
+						if ((utcDate >= MARCH_16TH_UTC && utcDate <= MARCH_21ST_UTC)
+							&& country == "France"
+							&& admin1 == "French Guiana") continue;
+
+						// French Guiana was not identified as Admin1 of France
+						if (country == "French Guiana") {
+							country = "France";
+							admin1 = "French Guiana";
+						}
+
+						// Normalize South Korea
+						if (country == "Korea, South") {
+							country = "South Korea";
+						}
+
+						// St. Martin was not identified as Admin1 of France
+						if (country == "St. Martin") {
+							country = "France";
+							admin1 = "St Martin";
+						}
+
+						if (country == "UK") {
+							country = "United Kingdom";
+							admin1 = "United Kingdom";
+						}
+
+						if (country == "United Kingdom"
+							&& (admin1 == null || admin1 == "UK")) {
+							admin1 = "United Kingdom";
+						}
+
+						// Curacao was not identified as Admin1 of Netherlands
+						if (country == "Curacao") {
+							country = "Netherlands";
+							admin1 = "Curacao";
+						}
+
+						if (country == "Netherlands"
+							&& admin1 == null) {
+							admin1 = "Netherlands";
+						}
+
+						// Duplicate entries
+						if ((utcDate == MARCH_18TH_UTC || utcDate == MARCH_19TH_UTC)
+							&& country == "Netherlands"
+							&& admin1 == "Aruba") continue;
+
+						// Aruba was not identified as Admin1 of Netherlands
+						if (country == "Aruba") {
+							country = "Netherlands";
+							admin1 = "Aruba";
+						}
+
+						if (country == "Bahamas, The") {
+							country = "Bahamas";
+						}
+
+						if (country == "East Timor") {
+							country = "Timor-Leste";
+						}
+
+						if (country == "Gambia, The") {
+							country = "Gambia";
+						}
+
+						if (country == "Guam") {
+							// Duplicate entries
+							if (utcDate >= MARCH_16TH_UTC) continue;
+							country = "US";
+							admin1 = "Guam";
 						}
 
 						// Duplicate entries for Gansu on March 11th and 12th
@@ -436,8 +608,10 @@ namespace Covid19id.ApiClients {
 							else if (country == "occupied Palestinian territory") country = "Palestine";
 							else if (country == "Russian Federation") country = "Russia";
 							else if (country == "Republic of Korea") country = "South Korea";
-							else if (country == "Saint Martin") country = "St. Martin";
-							else if (country == "Viet Nam") country = "Vietnam";
+							else if (country == "Saint Martin") {
+								country = "France";
+								admin1 = "St Martin";
+							} else if (country == "Viet Nam") country = "Vietnam";
 							else if (country == "Channel Islands") {
 								country = "United Kingdom";
 								admin1 = "Channel Islands";
@@ -646,6 +820,16 @@ namespace Covid19id.ApiClients {
 			}
 
 			FillWithZeroes(utcDate, MARCH_10TH_UTC, reports, "Vatican City", null, null, null, 41.9029, 12.4534);
+
+			FillWithZeroes(utcDate, MARCH_13TH_UTC, reports, "Palestine", null, null, null, 31.9522, 35.2332);
+
+			FillWithZeroes(utcDate, MARCH_14TH_UTC, reports, "Canada", "Grand Princess", null, null, 37.6489, -122.6655);
+
+			FillWithZeroes(utcDate, MARCH_14TH_UTC, reports, "US", "Alaska", null, null, 61.370716, -152.404419);
+
+			FillWithZeroes(utcDate, MARCH_22ND_UTC, reports, "Australia", "Diamond Princess", null, null, 35.4437, 139.6380);
+
+			FillWithZeroes(utcDate, MARCH_22ND_UTC, reports, "Cape Verde", null, null, null, 15.1111, -23.6167);
 		}
 
 		private void FillWithZeroes(DateTime utcDate, DateTime minUtcDate, List<JHUCSSEReport> reports, string country, string? admin1, string? admin2, string? fips, double? latitude, double? longitude) {
