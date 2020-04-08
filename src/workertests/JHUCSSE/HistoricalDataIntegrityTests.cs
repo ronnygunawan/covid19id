@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -80,8 +81,8 @@ namespace Tests.JHUCSSE {
 		}
 
 		[Theory]
-		[InlineData(1, 22, "Mainland China", "Hubei", 444, 17, 28, null)]
-		[InlineData(3, 3, "US", "New York City, NY", 1, 0, 0, null)]
+		[InlineData(1, 22, "China", "Hubei", 444, 17, 28, null)]
+		[InlineData(3, 3, "US", "New York", 2, 0, 0, null)]
 		public async Task KnownAdmin1DataVerified(int month, int day, string country, string admin1, int confirmed, int deaths, int recovered, int? active) {
 			JHUCSSEServices jhucsseServices = _fixture.ServiceProvider.GetRequiredService<JHUCSSEServices>();
 			JHUCSSEHistoricalReport admin1HistoricalReport = await jhucsseServices.GetAdmin1HistoricalReportAsync(country, admin1, CancellationToken.None);
@@ -106,16 +107,24 @@ namespace Tests.JHUCSSE {
 				int totalConfirmed = 0;
 				int totalDeaths = 0;
 				int totalRecovered = 0;
-				int totalActive = 0;
+				int? totalActive = null;
+
+				Debug.WriteLine($"SumOfAllCountriesEqualsWorld: {utcDate}");
 
 				foreach (Country country in countries) {
 					JHUCSSEHistoricalReport countryHistoricalReport = await jhucsseServices.GetCountryHistoricalReportAsync(country.Name, CancellationToken.None);
-					JHUCSSEDailyStatistics? countryDatum = countryHistoricalReport.TimeSeries.SingleOrDefault(datum => datum.UtcDate == utcDate);
+					JHUCSSEDailyStatistics? countryDatum = countryHistoricalReport.TimeSeries.FirstOrDefault(datum => datum.UtcDate == utcDate);
 					if (countryDatum != null) {
 						totalConfirmed += countryDatum.Confirmed;
 						totalDeaths += countryDatum.Deaths;
 						totalRecovered += countryDatum.Recovered;
-						totalActive += countryDatum.Active ?? 0;
+						if (countryDatum.Active.HasValue) {
+							if (totalActive.HasValue) {
+								totalActive += countryDatum.Active.Value;
+							} else {
+								totalActive = countryDatum.Active;
+							}
+						}
 					}
 				}
 
