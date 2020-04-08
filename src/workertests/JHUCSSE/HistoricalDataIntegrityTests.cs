@@ -40,20 +40,20 @@ namespace Tests.JHUCSSE {
 				foreach(Country country in prevCountries) {
 					countries
 						.Should().ContainSingle(c => c.Name == country.Name,
-							because: "{0} in {1}.csv should not be renamed or removed.", country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
+							because: "\n{0} in {1}.csv should not be renamed or removed.", country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
 
 					if (country.Admin1s != null) {
 						foreach (Admin1 admin1 in country.Admin1s) {
 							countries
 								.Single(c => c.Name == country.Name)
 								.Admin1s
-								.Should().NotBeNull(because: "Admin1s of {0} in {1}.csv should not be removed.", country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
+								.Should().NotBeNull(because: "\nAdmin1s of {0} in {1}.csv should not be removed.", country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
 
 							countries
 								.Single(c => c.Name == country.Name)
 								.Admin1s
 								.Should().ContainSingle(a1 => a1.Name == admin1.Name,
-									because: "{0}, {1} in {2}.csv should not be renamed or removed.", admin1.Name, country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
+									because: "\n{0}, {1} in {2}.csv should not be renamed or removed.", admin1.Name, country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
 
 							if (admin1.Admin2s != null) {
 								foreach (Admin2 admin2 in admin1.Admin2s) {
@@ -62,7 +62,7 @@ namespace Tests.JHUCSSE {
 										.Admin1s
 										.Single(a1 => a1.Name == admin1.Name)
 										.Admin2s
-										.Should().NotBeNull(because: "Admin2s of {0}, {1} in {2}.csv should not be removed.", admin1.Name, country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
+										.Should().NotBeNull(because: "\nAdmin2s of {0}, {1} in {2}.csv should not be removed.", admin1.Name, country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
 
 									countries
 										.Single(c => c.Name == country.Name)
@@ -70,7 +70,7 @@ namespace Tests.JHUCSSE {
 										.Single(a1 => a1.Name == admin1.Name)
 										.Admin2s
 										.Should().ContainSingle(a2 => a2.Name == admin2.Name,
-											because: "{0}, {1}, {2} in {3}.csv should not be renamed or removed.", admin2.Name, admin1.Name, country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
+											because: "\n{0}, {1}, {2} in {3}.csv should not be renamed or removed.", admin2.Name, admin1.Name, country.Name, prevReport.UtcDate.ToString("MM-dd-yyyy"));
 								}
 							}
 						}

@@ -72,6 +72,11 @@ namespace Covid19id.ApiClients {
 		/// </summary>
 		private static readonly DateTime MARCH_22ND_UTC = new DateTime(2020, 3, 22, 0, 0, 0, DateTimeKind.Utc);
 
+		private static readonly DateTime MARCH_23RD_UTC = new DateTime(2020, 3, 23, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_24TH_UTC = new DateTime(2020, 3, 24, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_25TH_UTC = new DateTime(2020, 3, 25, 0, 0, 0, DateTimeKind.Utc);
+		private static readonly DateTime MARCH_26TH_UTC = new DateTime(2020, 3, 26, 0, 0, 0, DateTimeKind.Utc);
+
 		private readonly HttpClient _httpClient;
 		private readonly IMemoryCache _memoryCache;
 
@@ -572,7 +577,12 @@ namespace Covid19id.ApiClients {
 							admin1 = "Aruba";
 						}
 
-						if (country == "Bahamas, The") {
+						// Duplicate entries
+						if (utcDate >= MARCH_19TH_UTC
+							&& country == "The Bahamas") continue;
+
+						if (country == "Bahamas, The"
+							|| country == "The Bahamas") {
 							country = "Bahamas";
 						}
 
@@ -580,15 +590,68 @@ namespace Covid19id.ApiClients {
 							country = "Timor-Leste";
 						}
 
-						if (country == "Gambia, The") {
+						// Duplicate entries
+						if (utcDate >= MARCH_18TH_UTC
+							&& country == "The Gambia") continue;
+
+						if (country == "Gambia, The"
+							|| country == "The Gambia") {
 							country = "Gambia";
 						}
 
+						// Guam was not identified as Admin1 of US
 						if (country == "Guam") {
 							// Duplicate entries
 							if (utcDate >= MARCH_16TH_UTC) continue;
 							country = "US";
 							admin1 = "Guam";
+						}
+
+						// Guernsey was not identified as Admin2 of Ohio
+						if (country == "Guernsey") {
+							country = "US";
+							admin1 = "Ohio";
+							admin2 = "Guernsey";
+						}
+
+						// Jersey was not identified as Admin2 of Illinois
+						if (country == "Jersey") {
+							country = "US";
+							admin1 = "Illinois";
+							admin2 = "Jersey";
+						}
+
+						// Martinique was not identified as Admin1 of France
+						if (country == "Martinique") {
+							country = "France";
+							admin1 = "Martinique";
+						}
+
+						// Duplicate entries
+						if (utcDate < MARCH_22ND_UTC
+							&& country == "France"
+							&& admin1 == "Mayotte") continue;
+
+						// Mayotte was not identified as Admin1 of France
+						if (country == "Mayotte") {
+							country = "France";
+							admin1 = "Mayotte";
+						}
+
+						// Duplicate entries
+						if (country == "Puerto Rico") continue;
+
+						// Duplicate entries
+						if (country == "Republic of the Congo") continue;
+
+						// Duplicate entries
+						if (country == "France"
+							&& admin1 == "Reunion") continue;
+
+						// Reunion was not identified as Admin1 of France
+						if (country == "Reunion") {
+							country = "France";
+							admin1 = "Reunion";
 						}
 
 						// Duplicate entries for Gansu on March 11th and 12th
@@ -717,6 +780,51 @@ namespace Covid19id.ApiClients {
 							country = "Taiwan";
 						}
 
+						if (country == "Cruise Ship"
+							&& admin1 == "Diamond Princess") {
+							country = "Others";
+						}
+
+						if (country == "Korea, South") {
+							country = "South Korea";
+						}
+
+						if (utcDate == MARCH_22ND_UTC
+							&& country == "Australia"
+							&& admin1 == "External territories") continue;
+
+						if (utcDate == MARCH_22ND_UTC
+							&& country == "Australia"
+							&& admin1 == "Jervis Bay Territory") continue;
+
+						// Duplicate entries
+						if (utcDate == MARCH_22ND_UTC
+							&& country == "US"
+							&& admin1 == "Florida"
+							&& admin2 == "DeSoto") continue;
+
+						if (utcDate == MARCH_22ND_UTC
+							&& country == "US"
+							&& admin1 == "Florida"
+							&& admin2 == "Desoto") {
+							admin2 = "DeSoto";
+							fips = "12027";
+							latitude = 27.18677893;
+							longitude = -81.80941373;
+						}
+
+						// Duplicate entries
+						if (utcDate == MARCH_23RD_UTC
+							&& country == "US"
+							&& admin1 == "Washington"
+							&& admin2 == "Walla Walla") continue;
+
+						if (country == "US"
+							&& admin1 == "Washington"
+							&& admin2 == "Walla Walla County") {
+							admin2 = "Walla Walla";
+						}
+
 						#endregion
 
 						JHUCSSEReport report = new JHUCSSEReport(
@@ -830,6 +938,52 @@ namespace Covid19id.ApiClients {
 			FillWithZeroes(utcDate, MARCH_22ND_UTC, reports, "Australia", "Diamond Princess", null, null, 35.4437, 139.6380);
 
 			FillWithZeroes(utcDate, MARCH_22ND_UTC, reports, "Cape Verde", null, null, null, 15.1111, -23.6167);
+
+			FillWithZeroes(utcDate, MARCH_22ND_UTC, reports, "Kosovo", null, null, null, 42.602636, 20.902977);
+
+			FillWithZeroes(utcDate, MARCH_22ND_UTC, reports, "US", "US", null, null, 37.0902, -95.7129);
+
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "Canada", "Northwest Territories", null, null, 64.8255, -124.8457);
+
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "France", "France", null, null, 46.2276, 2.2137);
+
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "US", "Alaska", "Soldotna", null, null, null);
+
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "US", "Alaska", "Sterling", null, null, null);
+
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "US", "Massachusetts", "Brockton", null, null, null);
+
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "US", "Minnesota", "LeSeur", null, null, null);
+
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "US", "New Hampshire", "Nashua", null, null, null);
+
+			// Not sure what this is
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "US", "Tennessee", "Out-of-state", null, null, null);
+
+			// Not sure what this is
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "US", "Tennessee", "Unknown", null, null, null);
+
+			FillWithZeroes(utcDate, MARCH_23RD_UTC, reports, "US", "Washington", "Garfield County", "53023", 46.45197502, -117.5454032);
+
+			FillWithZeroes(utcDate, MARCH_24TH_UTC, reports, "Others", "Diamond Princess", null, null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_24TH_UTC, reports, "US", "Indiana", "Unassigned", null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_24TH_UTC, reports, "US", "Maine", "Unassigned", null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_24TH_UTC, reports, "US", "Minnesota", "Unassigned", null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_24TH_UTC, reports, "US", "New Hampshire", "Unassigned", null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_25TH_UTC, reports, "US", "Florida", "Unassigned", null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_25TH_UTC, reports, "US", "Iowa", "Unassigned", null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_25TH_UTC, reports, "US", "Montana", "Unassigned", null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_25TH_UTC, reports, "US", "Wuhan Evacuee", "Unassigned", null, 0.0, 0.0);
+
+			FillWithZeroes(utcDate, MARCH_26TH_UTC, reports, "US", "Missouri", "Unassigned", null, 0.0, 0.0);
 		}
 
 		private void FillWithZeroes(DateTime utcDate, DateTime minUtcDate, List<JHUCSSEReport> reports, string country, string? admin1, string? admin2, string? fips, double? latitude, double? longitude) {
