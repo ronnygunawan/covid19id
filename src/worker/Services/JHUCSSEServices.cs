@@ -69,5 +69,10 @@ namespace Covid19id.Services {
 			JHUCSSEDailyReportCollection allDailyReports = await GetAllDailyReportsAsync(cancellationToken).ConfigureAwait(false);
 			return allDailyReports.GetHistoricalReportByAdmin1(country, admin1) ?? throw new KeyNotFoundException($"Historical report not found for {admin1}, {country}.");
 		}
+
+		public async Task<JHUCSSEHistoricalReport> GetAdmin2HistoricalReportAsync(string country, string admin1, string admin2, CancellationToken cancellationToken) {
+			JHUCSSEDailyReportCollection allDailyReports = await GetAllDailyReportsAsync(cancellationToken).ConfigureAwait(false);
+			return allDailyReports.GetHistoricalReportByKey($"{admin2}, {admin1}, {country}") ?? throw new KeyNotFoundException($"Historical report not found for {admin2}, {admin1}, {country}.");
+		}
 	}
 }
