@@ -212,6 +212,7 @@ export const LineChart = ({
                     },
                     "areas",
                     "lines",
+                    "points",
                     "markers",
                     "mesh",
                     "legends"

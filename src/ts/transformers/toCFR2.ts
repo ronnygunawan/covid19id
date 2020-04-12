@@ -8,7 +8,7 @@ export const toCFR2 = (statistics: CombinedStatistics, cfrDelay: number) => {
         for (let i = firstNonZero + cfrDelay; i < statistics.TimeSeries.length; i++) {
             const deaths = statistics.TimeSeries[i].Deaths;
             const recovered = statistics.TimeSeries[i - cfrDelay].Recovered;
-            const total = deaths + recovered;
+            const total = deaths + (recovered || 0);
             if (total > 0) {
                 const rate = deaths / total * 100;
                 cfr.push({

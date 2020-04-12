@@ -6,7 +6,7 @@ interface DailyStatistics {
     Date: string;
     Confirmed: number;
     Deaths: number;
-    Recovered: number;
+    Recovered: number | null;
 }
 
 const mapDelta = (timeSeries: DailyStatistics[], selector: (x: DailyStatistics) => number): Datum[] => timeSeries.reduce<[Datum[], DailyStatistics | null]>((agg, cur) => {
@@ -40,7 +40,7 @@ const toIndonesiaNewCases = (statistics: CombinedStatistics) => {
             },
             {
                 id: "Sembuh",
-                data: mapDelta(statistics.TimeSeries, d => d.Recovered)
+                data: mapDelta(statistics.TimeSeries.filter(d => d.Recovered !== null), d => d.Recovered!)
             }
         ];
     const indexOfMarch1st = statistics.TimeSeries.findIndex(t => t.Date === "3/1/20");
@@ -86,6 +86,6 @@ export const toNewCases = (statistics: CombinedStatistics, view: View) => statis
         },
         {
             id: "Sembuh",
-            data: mapDelta(statistics.TimeSeries, d => d.Recovered)
+            data: mapDelta(statistics.TimeSeries.filter(d => d.Recovered !== null), d => d.Recovered!)
         }
     ];

@@ -51,8 +51,8 @@ namespace Covid19id.ApiClients {
 						&& columns[8] is string I && int.TryParse(I, out int newDeaths)
 						&& columns[9] is string J && int.TryParse(J, out int deceased)
 						&& columns[11] is string L && int.TryParse(L, out int observed)
-						&& columns[12] is string M && int.TryParse(M, out int confirmed)
-						&& columns[13] is string N && int.TryParse(N, out int negatives)
+						&& columns[12] is string M && int.TryParse(M, out int negatives)
+						&& columns[13] is string N && int.TryParse(N, out int confirmed)
 						&& columns[14] is string O && int.TryParse(O, out int observing)) {
 						return new KawalCovid19idDailyStatistics(
 							date: date.Value.ToString("M/d/yy", CultureInfo.InvariantCulture),
