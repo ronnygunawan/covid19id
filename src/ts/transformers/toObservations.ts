@@ -28,6 +28,14 @@ const toIndonesiaObservations = (statistics: CombinedStatistics) => {
             {
                 id: "Diperiksa",
                 data: []
+            },
+            {
+                id: "PDP",
+                data: []
+            },
+            {
+                id: "ODP",
+                data: []
             }
         ];
     let started = false;
@@ -58,6 +66,18 @@ const toIndonesiaObservations = (statistics: CombinedStatistics) => {
                 result[4].data.push({
                     x: t.Date,
                     y: t.Observed
+                });
+            }
+            if (t.PDP !== null) {
+                result[5].data.push({
+                   x: t.Date,
+                   y: t.PDP 
+                });
+            }
+            if (t.ODP !== null) {
+                result[6].data.push({
+                    x: t.Date,
+                    y: t.ODP
                 });
             }
         }
@@ -123,5 +143,19 @@ export const toObservations = (statistics: CombinedStatistics, view: View) => st
                 x: t.Date,
                 y: t.Observed
             }))
-        }
+        },
+        {
+            id: "PDP",
+            data: statistics.TimeSeries.filter(t => t.PDP !== null).map(t => ({
+                x: t.Date,
+                y: t.PDP
+            }))
+        },
+        {
+            id: "ODP",
+            data: statistics.TimeSeries.filter(t => t.ODP !== null).map(t => ({
+                x: t.Date,
+                y: t.ODP
+            }))
+        },
     ];

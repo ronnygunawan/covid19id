@@ -7,6 +7,8 @@ export interface KawalCovid19idDailyStatistics {
     recovered: number;
     newDeaths: number;
     deceased: number;
+    pdp: number | null;
+    odp: number | null;
     observed: number;
     confirmed: number;
     negatives: number;

@@ -9,6 +9,8 @@ interface DailyStatistics {
     Recovered: number | null;
     Negatives: number | null;
     Observed: number | null;
+    PDP: number | null;
+    ODP: number | null;
 }
 
 const mapDelta = (timeSeries: DailyStatistics[], selector: (x: DailyStatistics) => number | null): Datum[] => timeSeries.reduce<[Datum[], DailyStatistics | null]>((agg, cur) => {
@@ -55,6 +57,14 @@ const toIndonesiaDailyObservations = (statistics: CombinedStatistics) => {
             {
                 id: "Diperiksa",
                 data: mapDelta(statistics.TimeSeries, d => d.Observed)
+            },
+            {
+                id: "PDP baru",
+                data: mapDelta(statistics.TimeSeries, d => d.PDP).slice(1)
+            },
+            {
+                id: "ODP baru",
+                data: mapDelta(statistics.TimeSeries, d => d.ODP).slice(1)
             }
         ];
     const indexOfMarch1st = statistics.TimeSeries.findIndex(t => t.Date === "3/1/20");
@@ -109,5 +119,13 @@ export const toDailyObservations = (statistics: CombinedStatistics, view: View) 
         {
             id: "Diperiksa",
             data: mapDelta(statistics.TimeSeries, d => d.Observed)
+        },
+        {
+            id: "PDP baru",
+            data: mapDelta(statistics.TimeSeries, d => d.PDP).slice(1)
+        },
+        {
+            id: "ODP baru",
+            data: mapDelta(statistics.TimeSeries, d => d.ODP).slice(1)
         }
-    ]
+]

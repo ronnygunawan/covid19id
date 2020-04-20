@@ -91,11 +91,15 @@ export const App = () => {
                                                 if (ts) {
                                                     ts.Observed = kcovidStat.observed;
                                                     ts.Negatives = kcovidStat.negatives;
+                                                    ts.PDP = kcovidStat.pdp;
+                                                    ts.ODP = kcovidStat.odp;
                                                 } else {
                                                     const todayTs = stat.TimeSeries.find(ts => ts.Date === "TODAY");
                                                     if (todayTs) {
                                                         todayTs.Observed = kcovidStat.observed;
                                                         todayTs.Negatives = kcovidStat.negatives;
+                                                        todayTs.PDP = kcovidStat.pdp;
+                                                        todayTs.ODP = kcovidStat.odp;
                                                     }
                                                 }
                                             }

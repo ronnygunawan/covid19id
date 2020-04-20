@@ -44,7 +44,9 @@ export async function getStatistics(): Promise<CombinedStatistics | null> {
                     Deaths: result.deaths.value,
                     Recovered: result.recovered.value,
                     Observed: null,
-                    Negatives: null
+                    Negatives: null,
+                    PDP: null,
+                    ODP: null
                 }
             ]
         };

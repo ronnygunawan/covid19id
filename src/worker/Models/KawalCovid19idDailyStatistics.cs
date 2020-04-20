@@ -8,6 +8,8 @@
 		public int Recovered { get; }
 		public int NewDeaths { get; }
 		public int Deceased { get; }
+		public int? PDP { get; }
+		public int? ODP { get; }
 		public int Observed { get; }
 		public int Confirmed { get; }
 		public int Negatives { get; }
@@ -22,6 +24,8 @@
 			int recovered,
 			int newDeaths,
 			int deceased,
+			int? pdp,
+			int? odp,
 			int observed,
 			int confirmed,
 			int negatives,
@@ -35,6 +39,8 @@
 			Recovered = recovered;
 			NewDeaths = newDeaths;
 			Deceased = deceased;
+			PDP = pdp;
+			ODP = odp;
 			Observed = observed;
 			Confirmed = confirmed;
 			Negatives = negatives;

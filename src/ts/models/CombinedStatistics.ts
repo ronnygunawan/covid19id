@@ -10,5 +10,7 @@ export interface CombinedStatistics {
         Recovered: number | null;
         Observed: number | null;
         Negatives: number | null;
+        PDP: number | null;
+        ODP: number | null;
     }[];
 }

@@ -215,7 +215,9 @@ export async function getHistoricalStatistics(): Promise<CombinedStatistics[]> {
                 Deaths: deaths,
                 Recovered: recovered || null,
                 Observed: null,
-                Negatives: null
+                Negatives: null,
+                PDP: null,
+                ODP: null
             };
         })
     }));
@@ -264,7 +266,9 @@ async function getAllStatistics(): Promise<[CombinedStatistics[], boolean]> {
                         Deaths: rs.Deaths,
                         Recovered: rs.Recovered,
                         Observed: null,
-                        Negatives: null
+                        Negatives: null,
+                        PDP: null,
+                        ODP: null
                     }
                 ]
             };
@@ -364,7 +368,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Deaths: 0,
                     Recovered: 0,
                     Observed: null,
-                    Negatives: null
+                    Negatives: null,
+                    PDP: null,
+                    ODP: null
                 }))
             });
             for (const ct of aggregatedStatistics.TimeSeries) {
@@ -405,7 +411,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Deaths: 0,
                     Recovered: 0,
                     Observed: null,
-                    Negatives: null
+                    Negatives: null,
+                    PDP: null,
+                    ODP: null
                 }))
             });
             for (const ct of aggregatedStatistics.TimeSeries) {
@@ -444,7 +452,9 @@ export async function getStatistics(province_state: string | null, country_regio
                     Deaths: 0,
                     Recovered: 0,
                     Observed: null,
-                    Negatives: null
+                    Negatives: null,
+                    PDP: null,
+                    ODP: null
                 }))
             });
             for (const ct of aggregatedStatistics.TimeSeries) {

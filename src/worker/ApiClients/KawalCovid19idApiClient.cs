@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 namespace Covid19id.ApiClients {
 	public class KawalCovid19idApiClient : IKawalCovid19idApi {
 		private const string SPREADSHEET_ID = "1ma1T9hWbec1pXlwZ89WakRk-OfVUQZsOCFl4FwZxzVw";
-		private const string DAILY_STATISTICS_RANGE = "'Statistik Harian'!A2:O";
+		private const string DAILY_STATISTICS_RANGE = "'Statistik Harian'!A2:R";
 		private const string PROVINCE_STATISTICS_RANGE = "'Kasus per Provinsi'!A3:E38";
 
 		private readonly IConfiguration _configuration;
@@ -39,7 +39,7 @@ namespace Covid19id.ApiClients {
 			ValueRange response = await getRequest.ExecuteAsync(cancellationToken).ConfigureAwait(false);
 
 			return response.Values
-				.Where(row => row.Count >= 15)
+				.Where(row => row.Count >= 18)
 				.Select(row => {
 					if (row.ToArray() is var columns
 						&& columns[0] is string A && TryParseDate(A, out DateTime? date)
@@ -50,10 +50,12 @@ namespace Covid19id.ApiClients {
 						&& columns[7] is string H && int.TryParse(H, out int recovered)
 						&& columns[8] is string I && int.TryParse(I, out int newDeaths)
 						&& columns[9] is string J && int.TryParse(J, out int deceased)
-						&& columns[11] is string L && int.TryParse(L, out int observed)
-						&& columns[12] is string M && int.TryParse(M, out int negatives)
-						&& columns[13] is string N && int.TryParse(N, out int confirmed)
-						&& columns[14] is string O && int.TryParse(O, out int observing)) {
+						&& columns[11] is string L
+						&& columns[12] is string M
+						&& columns[14] is string O && int.TryParse(O, out int observed)
+						&& columns[15] is string P && int.TryParse(P, out int negatives)
+						&& columns[16] is string Q && int.TryParse(Q, out int confirmed)
+						&& columns[17] is string R && int.TryParse(R, out int observing)) {
 						return new KawalCovid19idDailyStatistics(
 							date: date.Value.ToString("M/d/yy", CultureInfo.InvariantCulture),
 							newCases: newCases,
@@ -63,6 +65,8 @@ namespace Covid19id.ApiClients {
 							recovered: recovered,
 							newDeaths: newDeaths,
 							deceased: deceased,
+							pdp: int.TryParse(L, out int pdp) ? pdp : (int?)null,
+							odp: int.TryParse(M, out int odp) ? odp : (int?)null,
 							observed: observed,
 							confirmed: confirmed,
 							negatives: negatives,
