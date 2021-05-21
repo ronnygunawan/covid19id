@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@nivo/line": "^0.61.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "papaparse": "^5.2.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
